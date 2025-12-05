@@ -24,7 +24,7 @@ using Timberborn.ToolSystemUI;
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
-    public class ForestToolService : ITool, ILoadableSingleton, IForestTool, IToolDescriptor
+    public class ForestToolService : ITool, ILoadableSingleton, IToolDescriptor
     {
         private static readonly string TitleLocKey = "Cordial.ForestTool.DisplayName";
         private static readonly string DescriptionLocKey = "Cordial.ForestTool.Description";
@@ -35,7 +35,6 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         private static bool isUnlocked; 
 
-        private readonly ToolManager _toolManager;
         private readonly ILoc _loc;
         private EventBus _eventBus;
         private static VisualElement _root;
@@ -60,7 +59,7 @@ namespace Cordial.Mods.ForestTool.Scripts
         private readonly BuildingUnlockingService _buildingUnlockingService;
         private readonly BuildingService _buildingService;
 
-        private readonly ForestToolPrefabSpecService _forestToolPrefabSpecService;
+        private readonly ForestToolSpecService _forestToolSpecService;
 
         // planting parametrization
         Dictionary<string, bool> _treeToggleDict = new();
@@ -71,10 +70,6 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         // todo check how to access generic specifications, and beaver faction specifications
         //"C:\Users\simon\TreeMix\Assets\Timberborn\Resources\specifications\prefabcollections\PrefabCollectionSpecification.NaturalResources.naturalresources"
-
-        // services and objects
-        private readonly ToolButtonService _toolButtonService;  // todo check if required
-        private ToolDescription _toolDescription;       // is used
 
         protected readonly MethodInfo EnterPlantingModeMethod;
         protected readonly MethodInfo ExitPlantingModeMethod;
@@ -87,13 +82,11 @@ namespace Cordial.Mods.ForestTool.Scripts
                             TerrainAreaService terrainAreaService,
                             ToolUnlockingService toolUnlockingService,
                             ILoc loc,
-                            ToolManager toolManager,
-                            ToolButtonService toolButtonService,
                             EventBus eventBus,
                             BuildingService buildingService,
                             ISpecService specService,
                             BuildingUnlockingService buildingUnlockingService,
-                            ForestToolPrefabSpecService forestToolPrefabSpecService
+                            ForestToolSpecService forestToolSpecService
                                 )
         {
 
@@ -111,7 +104,7 @@ namespace Cordial.Mods.ForestTool.Scripts
             _toolUnlockingService = toolUnlockingService;
             _buildingService = buildingService;
             _buildingUnlockingService = buildingUnlockingService;
-            _forestToolPrefabSpecService = forestToolPrefabSpecService;
+            _forestToolSpecService = forestToolSpecService;
             _specService = specService;
 
 
@@ -119,8 +112,6 @@ namespace Cordial.Mods.ForestTool.Scripts
 
             _eventBus = eventBus;
             _loc = loc;
-            _toolManager = toolManager;
-            _toolButtonService = toolButtonService;
             _root = new VisualElement();
 
         }
@@ -128,42 +119,37 @@ namespace Cordial.Mods.ForestTool.Scripts
         public void Load()
         {
             string text = this._loc.T<string>(RequirementLocKey, _loc.T(ToolBuildingLocKey));
-            _toolDescription = new ToolDescription.Builder(_loc.T(TitleLocKey)).AddSection(_loc.T(DescriptionLocKey)).AddSection(text).Build();
             this._eventBus.Register((object)this);
 
             _plantingToolTile = new Color(0, 0.8f, 0, 1);
             _toolNoActionTileColor = new Color(0.7f, 0.7f, 0, 1);
         }
 
-        public void SetToolGroup(ToolGroup toolGroup)
-        {
-            ToolGroup = toolGroup;
-        }
         public ToolDescription DescribeTool()
         {
             return new ToolDescription.Builder(this._loc.T(ForestToolService.TitleLocKey)).AddSection(this._loc.T(ForestToolService.DescriptionLocKey)).Build();
         }
 
-        public override void Enter()
+        public void Enter()
         {
             // check if tool can be entered (forester available)
             // require access to either "Forester" or the "Trees". Therefore check if
             // the trees can be planted...
-            if (this.Locker != null)
+            if (this._toolUnlockingService != null)
             {
-                this._toolUnlockingService.TryToUnlock((Tool)this);
+                this._toolUnlockingService.TryToUnlock((ITool)this);
             }
             else
             {
                 // get faction forester specific building
-                if ("" != _forestToolPrefabSpecService.FactionId)
+                if ("" != _forestToolSpecService.FactionId)
                 {
                     BuildingSpec foresterSpec = new BuildingSpec();
 
                     // get a list of all buildings
                     foreach (BuildingSpec buildingspec in _buildingService.Buildings)
                     {
-                        if (buildingspec.name.Contains("Forester"))
+                        if (buildingspec.ToString().Contains("Forester"))
                         {
                             foresterSpec = buildingspec;
                             break;
@@ -193,7 +179,7 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         public bool IsUnlocked { get { return isUnlocked; } set { isUnlocked = value; } }
 
-        public override void Exit()
+        public void Exit()
         {
             this._plantingSelectionService.UnhighlightAll();
             this._selectionToolProcessor.Exit();
@@ -212,8 +198,8 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         private void ActionCallback(IEnumerable<Vector3Int> inputBlocks, Ray ray)
         {
-            if (this.Locker != null)
-                this._toolUnlockingService.TryToUnlock((Tool)this);
+            if (this._toolUnlockingService != null)
+                this._toolUnlockingService.TryToUnlock((ITool)this);
             else
                 this._areaHighlightingService.UnhighlightAll();
                 this.Plant(inputBlocks, ray);

@@ -4,7 +4,7 @@ namespace Cordial.Mods.ForestTool.Scripts
 {
     internal class ForestToolLogger : IModStarter 
     {
-        public void StartMod()
+        public void StartMod(IModEnvironment)
         {
             // required to start mod
         }

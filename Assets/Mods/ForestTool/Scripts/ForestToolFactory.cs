@@ -1,5 +1,4 @@
-﻿using TimberApi.Tools.ToolSystem;
-using Timberborn.ToolSystem;
+﻿using Timberborn.ToolSystem;
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
@@ -12,7 +11,7 @@ namespace Cordial.Mods.ForestTool.Scripts
             _ForestTool = ForestTool;
         }
 
-        public Tool Create(ToolSpec toolSpecification, ToolGroup toolGroup = null)
+        public ITool Create(ToolSpec toolSpecification, ToolGroupSpec toolGroup = null)
         {
             _ForestTool.SetToolGroup(toolGroup);
             return (Tool)_ForestTool;

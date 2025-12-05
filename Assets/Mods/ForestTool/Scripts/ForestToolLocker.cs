@@ -3,10 +3,8 @@ using Timberborn.Buildings;
 using Timberborn.CoreUI;
 using Timberborn.EntitySystem;
 using Timberborn.Localization;
-using Timberborn.PlantingUI;
 using Timberborn.ScienceSystem;
 using Timberborn.ToolSystem;
-using UnityEngine;
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
@@ -15,7 +13,7 @@ namespace Cordial.Mods.ForestTool.Scripts
         private static readonly string BuildingLockKey = "Cordial.ForestTool.BuildingLock";
         private static readonly string MissingSpecLockKey = "Cordial.ForestTool.SpecLock";
 
-        private readonly ForestToolPrefabSpecService _prefabSpecService;
+        private readonly ForestToolSpecService _SpecService;
         private readonly BuildingUnlockingService _buildingUnlockingService;
         private readonly BuildingService _buildingService;
 
@@ -27,16 +25,16 @@ namespace Cordial.Mods.ForestTool.Scripts
                                     DialogBoxShower dialogBoxShower,
                                     BuildingUnlockingService buildingUnlockingService,
                                     BuildingService buildingService,
-                                    ForestToolPrefabSpecService prefabSpecService)
+                                    ForestToolSpecService SpecService)
         {
             this._buildingService = buildingService;
             this._buildingUnlockingService = buildingUnlockingService;
             this._loc = loc;
             this._dialogBoxShower = dialogBoxShower;
-            this._prefabSpecService = prefabSpecService;
+            this._SpecService = SpecService;
         }
 
-        public bool ShouldLock(Tool tool)
+        public bool ShouldLock(ITool tool)
         {
             bool shouldLock = IsForestTool(tool, out ForestToolService overrideTool);
 
@@ -48,7 +46,7 @@ namespace Cordial.Mods.ForestTool.Scripts
                 // get a list of all buildings
                 foreach (BuildingSpec buildingspec in _buildingService.Buildings)
                 {
-                    if (buildingspec.name.Contains("Forester"))
+                    if (buildingspec.ToString().Contains("Forester"))
                     {
                         foresterSpec = buildingspec;
                         specFound = true;
@@ -71,7 +69,7 @@ namespace Cordial.Mods.ForestTool.Scripts
             }
         }
 
-        public void TryToUnlock(Tool tool, Action successCallback, Action failCallback)
+        public void TryToUnlock(ITool tool, Action successCallback, Action failCallback)
         {
             BuildingSpec foresterSpec = new BuildingSpec();
             bool specFound = false;
@@ -79,7 +77,7 @@ namespace Cordial.Mods.ForestTool.Scripts
             // get a list of all buildings and search for the beehive
             foreach (BuildingSpec buildingspec in _buildingService.Buildings)
             {
-                if (buildingspec.name.Contains("Forester"))
+                if (buildingspec.ToString().Contains("Forester"))
                 {
                     foresterSpec = buildingspec;
                     specFound = true;
@@ -111,7 +109,7 @@ namespace Cordial.Mods.ForestTool.Scripts
             }
         }
 
-        public static bool IsForestTool(Tool tool, out ForestToolService overrideTool)
+        public static bool IsForestTool(ITool tool, out ForestToolService overrideTool)
         {
             overrideTool = tool as ForestToolService;
             return overrideTool != null;
@@ -127,7 +125,7 @@ namespace Cordial.Mods.ForestTool.Scripts
         }
         private string GetMessageBuild(BuildingSpec building, string key)
         {
-            string tgt = this._loc.T(building.GetComponentFast<LabeledEntitySpec>().DisplayNameLocKey);
+            string tgt = this._loc.T(building.GetSpec<LabeledEntitySpec>().DisplayNameLocKey);
             string str = this._loc.T(key);
             return str + " " + tgt;
         }

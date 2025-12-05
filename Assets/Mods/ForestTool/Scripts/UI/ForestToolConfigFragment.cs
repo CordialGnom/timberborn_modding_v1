@@ -31,14 +31,14 @@ namespace Cordial.Mods.ForestTool.Scripts.UI
         
 
         // faction / tree configuration
-        ForestToolPrefabSpecService _forestToolPrefabSpecService;
+        ForestToolSpecService _forestToolPrefabSpecService;
         private readonly EventBus _eventBus;
 
         public bool EmptySpotsEnabled => _toggleEmptySpots.value;
 
 
         public ForestToolConfigFragment (UIBuilder uiBuilder,
-                                         ForestToolPrefabSpecService forestToolPrefabSpecService,
+                                         ForestToolSpecService forestToolPrefabSpecService,
                                          VisualElementLoader visualElementLoader,
                                          EventBus eventBus)
         {

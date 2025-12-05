@@ -11,7 +11,7 @@ namespace Cordial.Mods.ForestTool.Scripts
 {
     public static class ForestToolParam
     {
-        private static ForestToolPrefabSpecService _forestToolPrefabSpecService;
+        private static ForestToolSpecService _forestToolSpecService;
 
 
         private static List<ForestToolTypeConfig> _ForestToolTypeConfig = new();
@@ -72,15 +72,15 @@ namespace Cordial.Mods.ForestTool.Scripts
             }
             return resourceNames;
         }
-        public static ForestToolPrefabSpecService ForestToolPrefabSpecService
+        public static ForestToolSpecService ForestToolSpecService
         {
             get
             {
-                return _forestToolPrefabSpecService;
+                return _forestToolSpecService;
             }
             set
             {
-                _forestToolPrefabSpecService = value;
+                _forestToolSpecService = value;
             }
         }
 
@@ -172,13 +172,13 @@ namespace Cordial.Mods.ForestTool.Scripts
             // reset existing lists and referenced variables
             _ForestToolTypeConfig.Clear();
 
-            if (null == _forestToolPrefabSpecService)
+            if (null == _forestToolSpecService)
             {
                 Debug.LogError("ForestTool: No Faction Spec Service in parameters");
             }
             else
             {
-                ImmutableArray<string> factionTreeNames = _forestToolPrefabSpecService.GetAllForestryPlantables();
+                ImmutableArray<string> factionTreeNames = _forestToolSpecService.GetAllForestryPlantables();
 
                 foreach (string treeName in factionTreeNames)
                 {

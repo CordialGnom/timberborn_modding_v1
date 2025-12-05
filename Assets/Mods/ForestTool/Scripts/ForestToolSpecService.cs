@@ -2,19 +2,19 @@
 using System.Collections.Immutable;
 using Timberborn.SingletonSystem;
 using UnityEngine;
-using Timberborn.PrefabSystem;
 using Timberborn.Forestry;
 using Timberborn.GameFactionSystem;
 using Timberborn.FactionSystem;
+using Timberborn.BlueprintSystem;
 
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
-    public class ForestToolPrefabSpecService : ILoadableSingleton
+    public class ForestToolSpecService : ILoadableSingleton
     {
 
         // access to specs
-        private static PrefabService _prefabService;
+        private static SpecService _specService;
 
         // access to faction
         private static FactionService _factionService;
@@ -24,16 +24,16 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         public string FactionId => _factionId;
 
-        public ForestToolPrefabSpecService( PrefabService prefabService,
-                                             FactionService factionService)
+        public ForestToolSpecService( SpecService specService,
+                                      FactionService factionService)
         {
-            _prefabService = prefabService;
+            _specService = specService;
             _factionService = factionService;
         }
 
         public void Load()
         {
-            if ((null == _prefabService)
+            if ((null == _specService)
                 || (null == _factionService))
             {
                 Debug.LogError("ForestTool: Missing Service");
@@ -43,7 +43,7 @@ namespace Cordial.Mods.ForestTool.Scripts
                 _factionId = GetFactionName();
 
                 // only call parameter init once
-                ForestToolParam.ForestToolPrefabSpecService = this;
+                ForestToolParam.ForestToolSpecService = this;
                 ForestToolParam.InitConfigDefault();
             }
         }
@@ -52,14 +52,14 @@ namespace Cordial.Mods.ForestTool.Scripts
         {
             List<string> treeTypes = new();
 
-            if (null != _prefabService)
+            if (null != _specService)
             { 
-                var treeComponents = _prefabService.GetAll<TreeComponentSpec>();
+                var treeComponents = _specService.GetSpecs<TreeComponentSpec>();
 
-                //todo Cordial: Load a prefab group
+                //todo Cordial: Load a spec group
                 foreach (var treeObject in treeComponents)
                 {
-                    treeTypes.Add(treeObject.name);
+                    treeTypes.Add(treeObject.ToString());
                 }
             }
             return treeTypes.ToImmutableArray<string>();
@@ -81,19 +81,19 @@ namespace Cordial.Mods.ForestTool.Scripts
         {
             List<string> treeTypes = new();
 
-            if (null != _prefabService)
+            if (null != _specService)
             {
-                var treeComponents = _prefabService.GetAll<TreeComponentSpec>();
-                var bushComponents = _prefabService.GetAll<BushSpec>();
+                var treeComponents = _specService.GetSpecs<TreeComponentSpec>();
+                var bushComponents = _specService.GetSpecs<BushSpec>();
 
                 foreach (var bushObject in bushComponents)
                 {
-                    treeTypes.Add(bushObject.name);
+                    treeTypes.Add(bushObject.ToString());
                 }
 
                 foreach (var treeObject in treeComponents)
                 {
-                    treeTypes.Add(treeObject.name);
+                    treeTypes.Add(treeObject.ToString());
                 }
             }
             return treeTypes.ToImmutableArray<string>();
