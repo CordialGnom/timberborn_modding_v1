@@ -1,0 +1,17 @@
+{
+  "Name": "Forest Tool",
+  "Version": "0.7.2.2",
+  "Id": "Cordial.ForestTool",
+  "MinimumGameVersion": "0.7.4.2",
+  "Description": "Tools for (re)forestation.",
+  "RequiredMods": [
+	{
+		"Id": "TimberApi",
+		"MinimumVersion": "0.7.12.1"
+	},
+	{
+		"Id": "TimberApi.UIBuilder",
+		"MinimumVersion": "1.0.0.1"
+	}
+  ]
+}
