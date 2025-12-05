@@ -1,0 +1,20 @@
+ID,Text,Comment
+Cordial.Good.Fertilizer.DisplayName,Добриво для дерев,-
+Cordial.Good.Fertilizer.PluralDisplayName,Добриво для дерев,-
+Cordial.Fertilizer.Mild,Легке добриво,-
+Cordial.Fertilizer.Strong,Сильне добриво,-
+Cordial.Building.Chemist.Description,Готує хімічні суміші,-
+Cordial.Building.Chemist.DisplayName,Хімік,"Споруда, яка виконує роль хімічної лабораторії. Виробляє різні запахи та дим."
+Cordial.Building.Chemist.FlavorDescription,Фантастичне обладнання всередині використовується виключно для наукових цілей.,-
+Cordial.Building.FertilizerDump.Description,Розподіляє добриво для посаджених дерев,-
+Cordial.Building.FertilizerDump.DisplayName,Сховище добрив,-
+Cordial.Building.FertilizerDump.FlavorDescription,Добриво для дерев прискорює ріст та підвищує врожайність.,-
+Cordial.Building.FertilizerDump.Consumption,Витрата добрива," the "": "" is part of the code"
+Cordial.Building.FertilizerDump.TreeCount,Залучено дерев," the "": "" is part of the code"
+Cordial.Building.FertilizerDump.FertilizeYield,"Застосовувати добриво для ресурсів, які збираються з дерев", 
+Cordial.TreeFragment.Title,Ріст залежить від добрива.,-
+Cordial.TreeFragment.GrowthDaily,Щоденний ріст збільшено на,-
+Cordial.TreeFragment.GrowthAverage,Середній ріст зменшено на,-
+Cordial.TreeFragment.YieldAverage,Середнє збільшення врожаю зменшено на,-
+Cordial.Unit.Days,день,як одиниці виміру
+Cordial.Unit.PerHour,/год,-

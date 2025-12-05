@@ -1,0 +1,354 @@
+{
+  "BuildingSpec": {
+    "SelectionSoundName": "Default",
+    "LoopingSoundName": "",
+    "BuildingCost": [
+      {
+        "Id": "Plank",
+        "Amount": 8
+      },
+      {
+        "Id": "Gear",
+        "Amount": 8
+      },
+      {
+        "Id": "ScrapMetal",
+        "Amount": 5
+      }
+    ],
+    "ScienceCost": 200,
+    "PlaceFinished": false,
+    "FinishableWithBeaversOnSite": false,
+    "DrawRangeBoundsOnIt": false
+  },
+  "BuildingModelSpec": {
+    "FinishedModelName": "#Finished",
+    "UnfinishedModelName": "#Unfinished",
+    "FinishedUncoveredModelName": "",
+    "UndergroundModelName": "",
+    "ConstructionModeModel": "Finished",
+    "UndergroundModelDepth": 0
+  },
+  "WorkplaceSpec": {
+    "MaxWorkers": 1,
+    "DefaultWorkers": 1,
+    "DefaultWorkerType": "Beaver",
+    "DisallowOtherWorkerTypes": false,
+    "WorkerTypeUnlockCosts": [
+      {
+        "WorkerType": "Bot",
+        "ScienceCost": 750
+      }
+    ]
+  },
+  "ManufactorySpec": {
+    "ProductionRecipeIds": [
+      "Fertilizer.Mild.IronTeeth",
+      "Fertilizer.Strong.IronTeeth"
+    ]
+  },
+  "WorkshopSpec": {},
+  "EnterableSpec": {
+    "OperatingState": "Finished",
+    "LimitedCapacityFinished": false,
+    "CapacityFinished": 0,
+    "LimitedCapacityUnfinished": false,
+    "CapacityUnfinished": 0
+  },
+  "TemplateSpec": {
+    "TemplateName": "CordialChemist.IronTeeth",
+    "BackwardCompatibleTemplateNames": [],
+    "RequiredFeatureToggle": "",
+    "DisablingFeatureToggle": ""
+  },
+  "TransformSlotInitializerSpec": {
+    "Slots": [
+      {
+        "SlotKeyword": "Entrance",
+        "Animation": "Sitting",
+        "Inanimate": false,
+        "RandomizeYRotation": false,
+        "WaterSlot": false
+      }
+    ]
+  },
+  "WorkplaceSlotManagerSpec": {},
+  "BlockObjectSpec": {
+    "BlocksSpec": {
+      "Size": {
+        "X": 2,
+        "Y": 2,
+        "Z": 2
+      },
+      "BlockSpecs": [
+        {
+          "MatterBelow": "GroundOrStackable",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Bottom, Top, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "GroundOrStackable",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Bottom, Top, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "GroundOrStackable",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Bottom, Top, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "GroundOrStackable",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Bottom, Top, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "Any",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Floor, Bottom, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "Any",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Floor, Bottom, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "Any",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Floor, Bottom, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        },
+        {
+          "MatterBelow": "Any",
+          "LegacyOccupation": "Full",
+          "UseNewOccupation": true,
+          "Occupations": "Floor, Bottom, Corners, Path, Middle",
+          "Stackable": "None",
+          "OccupyAllBelow": false,
+          "Underground": false
+        }
+      ]
+    },
+    "Entrance": {
+      "HasEntrance": true,
+      "Coordinates": {
+        "X": 0,
+        "Y": -1,
+        "Z": 0
+      }
+    },
+    "BaseZ": 0,
+    "Overridable": false,
+    "Flippable": true
+  },
+  "BuildingAccessibleSpec": {
+    "LocalAccess": {
+      "X": 0.5,
+      "Y": 0.05000000074505806,
+      "Z": 0.05000000074505806
+    },
+    "ForceOneFinalAccess": false
+  },
+  "PlaceableBlockObjectSpec": {
+    "ToolGroupId": "Science",
+    "ToolOrder": 21,
+    "ToolShape": "Square",
+    "Layout": "Single",
+    "CustomPivot": {
+      "HasCustomPivot": false,
+      "Coordinates": {
+        "X": 0.0,
+        "Y": 0.0,
+        "Z": 0.0
+      }
+    },
+    "CanBeAttachedToTerrainSide": false,
+    "DevModeTool": false
+  },
+  "LabeledEntitySpec": {
+    "DisplayNameLocKey": "Cordial.Building.Chemist.DisplayName",
+    "DescriptionLocKey": "Cordial.Building.Chemist.Description",
+    "FlavorDescriptionLocKey": "Cordial.Building.Chemist.FlavorDescription",
+    "Icon": "Buildings/Science/CordialChemist/ChemistIcon"
+  },
+  "WorkplaceLightingSpec": {},
+  "WorkshopWorkerHiderSpec": {},
+  "SimpleManufactoryBehaviorsSpec": {},
+  "ConstructionSiteProgressVisualizerSpec": {
+    "ProgressThresholds": [
+      0.0
+    ]
+  },
+  "Children": {
+    "#Finished": {
+      "TimbermeshSpec": {
+        "Model": "Buildings/Science/CordialChemist/CordialChemist.IronTeeth.Model"
+      },
+      "CollidersSpec": {
+        "BoxColliders": [
+          {
+            "Center": {
+              "X": 1.0,
+              "Y": 0.4683305,
+              "Z": 1.0
+            },
+            "Size": {
+              "X": 2.0,
+              "Y": 0.936661,
+              "Z": 2.0
+            }
+          },
+          {
+            "Center": {
+              "X": 0.85,
+              "Y": 1.2,
+              "Z": 1.0
+            },
+            "Size": {
+              "X": 1.7,
+              "Y": 0.5,
+              "Z": 2.0
+            }
+          },
+          {
+            "Center": {
+              "X": 0.85,
+              "Y": 1.55,
+              "Z": 1.0
+            },
+            "Size": {
+              "X": 1.3,
+              "Y": 0.4,
+              "Z": 2.0
+            }
+          },
+          {
+            "Center": {
+              "X": 1.7,
+              "Y": 1.55,
+              "Z": 1.45
+            },
+            "Size": {
+              "X": 0.4,
+              "Y": 0.4,
+              "Z": 0.4
+            }
+          }
+        ],
+        "SphereColliders": [],
+        "CapsuleColliders": [
+          {
+            "Center": {
+              "X": 1.8,
+              "Y": 1.2,
+              "Z": 1.55
+            },
+            "Radius": 0.25,
+            "Height": 1.10858583,
+            "Direction": "Y"
+          }
+        ]
+      }
+    },
+    "#Unfinished": {
+      "Children": {
+        "ConstructionSite2x2": {
+          "TimbermeshSpec": {
+            "Model": "ConstructionBases/ConstructionBase2x2/ConstructionBase2x2.Model"
+          },
+          "CollidersSpec": {
+            "BoxColliders": [
+              {
+                "Center": {
+                  "X": 1.0,
+                  "Y": 0.05,
+                  "Z": 1.0
+                },
+                "Size": {
+                  "X": 2.0,
+                  "Y": 0.1,
+                  "Z": 2.0
+                }
+              }
+            ],
+            "SphereColliders": [],
+            "CapsuleColliders": []
+          }
+        },
+        "ConstructionStage0": {
+          "TimbermeshSpec": {
+            "Model": "Buildings/Science/CordialChemist/CordialChemist.IronTeeth.ConstructionStage0.Model"
+          },
+          "CollidersSpec": {
+            "BoxColliders": [
+              {
+                "Center": {
+                  "X": 1.0,
+                  "Y": 0.05,
+                  "Z": 1.0
+                },
+                "Size": {
+                  "X": 2.0,
+                  "Y": 0.1,
+                  "Z": 2.0
+                }
+              },
+              {
+                "Center": {
+                  "X": 0.9,
+                  "Y": 0.8,
+                  "Z": 1.0
+                },
+                "Size": {
+                  "X": 1.8,
+                  "Y": 1.4,
+                  "Z": 2.0
+                }
+              },
+              {
+                "Center": {
+                  "X": 0.85,
+                  "Y": 1.5,
+                  "Z": 1.0
+                },
+                "Size": {
+                  "X": 0.9,
+                  "Y": 0.5,
+                  "Z": 2.0
+                }
+              }
+            ],
+            "SphereColliders": [],
+            "CapsuleColliders": []
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+ID,Text,Comment
+Cordial.Good.Fertilizer.DisplayName,Удобрение для деревьев,-
+Cordial.Good.Fertilizer.PluralDisplayName,Удобрения для деревьев,-
+Cordial.Fertilizer.Mild,Лёгкое удобрение,-
+Cordial.Fertilizer.Strong,Сильное удобрение,-
+Cordial.Building.Chemist.Description,Готовит химические составы,-
+Cordial.Building.Chemist.DisplayName,Химик,"Здание, выполняющее роль химической лаборатории. Производит различные запахи и дым."
+Cordial.Building.Chemist.FlavorDescription,Фантастическое оборудование внутри используется строго в научных целях.,-
+Cordial.Building.FertilizerDump.Description,Распределяет удобрение для посаженных деревьев,-
+Cordial.Building.FertilizerDump.DisplayName,Хранилище удобрений,-
+Cordial.Building.FertilizerDump.FlavorDescription,Удобрение для деревьев ускоряет рост и повышает урожайность.,-
+Cordial.Building.FertilizerDump.Consumption,Расход удобрения," the "": "" is part of the code"
+Cordial.Building.FertilizerDump.TreeCount,Затронуто деревьев," the "": "" is part of the code"
+Cordial.Building.FertilizerDump.FertilizeYield,Применять удобрение для собираемых ресурсов деревьев, 
+Cordial.TreeFragment.Title,Рост зависит от удобрения.,-
+Cordial.TreeFragment.GrowthDaily,Ежедневный рост увеличен на,-
+Cordial.TreeFragment.GrowthAverage,Средний рост уменьшен на,-
+Cordial.TreeFragment.YieldAverage,Средний прирост урожая уменьшен на,-
+Cordial.Unit.Days,день, как единицы измерения
+Cordial.Unit.PerHour,/ч,-
