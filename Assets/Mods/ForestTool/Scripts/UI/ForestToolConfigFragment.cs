@@ -31,21 +31,21 @@ namespace Cordial.Mods.ForestTool.Scripts.UI
         
 
         // faction / tree configuration
-        ForestToolSpecService _forestToolPrefabSpecService;
+        ForestToolSpecService _forestToolSpecService;
         private readonly EventBus _eventBus;
 
         public bool EmptySpotsEnabled => _toggleEmptySpots.value;
 
 
         public ForestToolConfigFragment (UIBuilder uiBuilder,
-                                         ForestToolSpecService forestToolPrefabSpecService,
+                                         ForestToolSpecService forestToolSpecService,
                                          VisualElementLoader visualElementLoader,
                                          EventBus eventBus)
         {
             _eventBus = eventBus;
             _uiBuilder = uiBuilder;
             _visualElementLoader = visualElementLoader;
-            _forestToolPrefabSpecService = forestToolPrefabSpecService;
+            _forestToolSpecService = forestToolSpecService;
 
         }
 
@@ -65,7 +65,7 @@ namespace Cordial.Mods.ForestTool.Scripts.UI
                 .Build();
 
             // create toggle elements for all available tree types
-            ImmutableArray<string> treeList = _forestToolPrefabSpecService.GetAllForestryPlantables();
+            ImmutableArray<string> treeList = _forestToolSpecService.GetAllForestryPlantables();
 
             for (int index = 0; index < treeList.Length; ++index )
             {

@@ -1,6 +1,5 @@
 ﻿using Timberborn.CoreUI;
 using Timberborn.Localization;
-using Timberborn.PlantingUI;
 
 namespace Cordial.Mods.ForestTool.Scripts.UI
 {
