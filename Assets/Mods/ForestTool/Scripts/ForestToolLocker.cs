@@ -55,8 +55,6 @@ namespace Cordial.Mods.ForestTool.Scripts
                         break;
                     }
                 }
-                Debug.Log("ForestTool: ShouldLock result = " + shouldLock
-+                   ", specFound = " + specFound);
 
                 if (specFound)
                 {
@@ -77,9 +75,6 @@ namespace Cordial.Mods.ForestTool.Scripts
         {
             BuildingSpec foresterSpec = new BuildingSpec();
             bool specFound = false;
-
-            Debug.Log("ForestTool: TryToUnlock, unlocked = "
-          + _buildingUnlockingService.Unlocked(foresterSpec));
 
             // get a list of all buildings and search for the beehive
             foreach (BuildingSpec buildingspec in _buildingService.Buildings)

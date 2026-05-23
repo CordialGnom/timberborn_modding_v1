@@ -40,9 +40,6 @@ namespace Cordial.Mods.ForestTool.Scripts.UI
         [OnEvent]
         public void OnForestToolSelectedEvent(ForestToolSelectedEvent evt)
         {
-
-            Debug.Log("FT: Select Event");
-
             if (evt == null) return;
             _forestToolPanel.SetVisible(true);
         }
@@ -50,7 +47,6 @@ namespace Cordial.Mods.ForestTool.Scripts.UI
         [OnEvent]
         public void OnForestToolUnselectedEvent(ForestToolUnselectedEvent evt)
         {
-            Debug.Log("FT: Unselect Event");
             if (evt == null) return;
             _forestToolPanel.SetVisible(false);
         }

@@ -53,9 +53,6 @@ namespace Cordial.Mods.ForestTool.Scripts
                 }
             }
 
-            Debug.Log("ForestTool: button created, tool = " + _forestToolService.GetType().Name);
-            Debug.Log("ForestTool: group button found = " + (forestryGroupButton != null));
-
             if (forestryGroupButton == null)
             {
                 Debug.LogError("ForestTool: Could not find Forestry tool group button.");
