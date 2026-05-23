@@ -1,4 +1,5 @@
 {
   "name": "Cordial.Mods.ForestTool",
+  "allowUnsafeCode": true,
   "autoReferenced": false
 }
