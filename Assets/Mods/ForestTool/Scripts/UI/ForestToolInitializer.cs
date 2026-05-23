@@ -1,81 +1,58 @@
-﻿using Timberborn.CoreUI;
-using Timberborn.SingletonSystem;
+﻿using Timberborn.SingletonSystem;
 using Timberborn.UILayoutSystem;
-using UnityEngine.UIElements;
+using UnityEngine;
 using Cordial.Mods.ForestTool.Scripts.UI.Events;
+using UnityEngine.UIElements;
 
 namespace Cordial.Mods.ForestTool.Scripts.UI
 {
-    public class ForestToolInitializer : ILoadableSingleton 
+    public class ForestToolInitializer : ILoadableSingleton
     {
         private readonly UILayout _uiLayout;
-        private readonly VisualElementLoader _visualElementLoader;
         private readonly EventBus _eventBus;
+        private readonly ForestToolPanel _forestToolPanel;
 
-
-        readonly ForestToolConfigFragment _forestToolConfigFragment;
-        readonly ForestToolErrorPrompt _forestToolErrorPrompt;
-
-        private VisualElement _rootConfig;
-        private VisualElement _rootEntity;
-
-        public ForestToolInitializer( UILayout uiLayout, 
-                                        VisualElementLoader visualElementLoader,
-                                        ForestToolConfigFragment forestToolConfigFragment,
-                                        ForestToolErrorPrompt forestToolErrorPrompt,
-                                        EventBus eventBus)
+        public ForestToolInitializer(
+            UILayout uiLayout,
+            EventBus eventBus,
+            ForestToolPanel forestToolPanel)
         {
-            this._uiLayout = uiLayout;
-            this._visualElementLoader = visualElementLoader;
-            this._forestToolConfigFragment = forestToolConfigFragment;
-            this._forestToolErrorPrompt = forestToolErrorPrompt;
-            this._eventBus = eventBus;
+            _uiLayout = uiLayout;
+            _eventBus = eventBus;
+            _forestToolPanel = forestToolPanel;
         }
 
         public void Load()
         {
-            this._rootEntity = this._visualElementLoader.LoadVisualElement("Common/EntityPanel/EntityPanel");
-            this._rootEntity.Clear();
+            var panelRoot = _forestToolPanel.Build();
 
-            this._rootConfig = this._forestToolConfigFragment.InitializeFragment();
-            this._rootEntity.Add(this._rootConfig);
-            this._uiLayout.AddAbsoluteItem(this._rootEntity);
+            var container = new VisualElement();
+            container.style.position = Position.Absolute;  // keep manual for now
+            container.style.top = 100;
+            container.style.right = 10;
+            container.style.width = 250;
+            container.Add(panelRoot);
 
-            this._rootEntity.ToggleDisplayStyle(false);
-
-            this._eventBus.Register((object)this);
-        }
-
-        public void SetVisualState(bool setActive)
-        {
-            this._rootConfig.ToggleDisplayStyle(setActive);
+            _uiLayout.AddTopRight(container, 5);  // was AddAbsoluteItem
+            _eventBus.Register(this);
         }
 
         [OnEvent]
-        public void OnForestToolSelectedEvent( ForestToolSelectedEvent forestToolSelectedEvent)
+        public void OnForestToolSelectedEvent(ForestToolSelectedEvent evt)
         {
-            if (null == forestToolSelectedEvent)
-                return;
 
-            if (forestToolSelectedEvent.ForestToolService.IsUnlocked)
-            {
-                this.SetVisualState(true);
-                this._rootEntity.ToggleDisplayStyle(true);
-            }
-            else
-            {
-                _forestToolErrorPrompt.ShowLockedMessage();
-            }
+            Debug.Log("FT: Select Event");
+
+            if (evt == null) return;
+            _forestToolPanel.SetVisible(true);
         }
 
         [OnEvent]
-        public void OnForestToolUnselectedEvent(ForestToolUnselectedEvent forestToolUnselectedEvent )
+        public void OnForestToolUnselectedEvent(ForestToolUnselectedEvent evt)
         {
-            if (null == forestToolUnselectedEvent)
-                return;
-
-            this.SetVisualState(false);
-            this._rootEntity.ToggleDisplayStyle(false);
+            Debug.Log("FT: Unselect Event");
+            if (evt == null) return;
+            _forestToolPanel.SetVisible(false);
         }
     }
 }

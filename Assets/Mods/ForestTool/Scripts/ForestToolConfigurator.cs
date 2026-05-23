@@ -1,6 +1,6 @@
 using Bindito.Core;
-using Timberborn.BottomBarSystem;
 using Timberborn.ToolSystem;
+using Cordial.Mods.ForestTool.Scripts.UI;
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
@@ -19,13 +19,10 @@ namespace Cordial.Mods.ForestTool.Scripts
             // Locks the tool unless a Forester building is unlocked
             containerDefinition.MultiBind<IToolLocker>().To<ForestToolLocker>().AsSingleton();
 
-            // UI fragments - keep as-is, will need separate review
-            //containerDefinition.bind<foresttoolinitializer>().assingleton();
-            //containerdefinition.bind<panelfragment>().assingleton();
-            //containerdefinition.bind<panelfragmentblue>().assingleton();
-            //containerdefinition.bind<panelfragmentred>().assingleton();
-            //containerdefinition.bind<foresttoolconfigfragment>().assingleton();
-            //containerdefinition.Bind<ForestToolErrorPrompt>().AsSingleton();
+            // UI
+            containerDefinition.Bind<ForestToolPanel>().AsSingleton();
+            containerDefinition.Bind<ForestToolInitializer>().AsSingleton();
+
         }
     }
 }

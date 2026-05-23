@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Timberborn.Buildings;
 using Timberborn.Localization;
 using Timberborn.Planting;
 using Timberborn.SelectionToolSystem;
 using Timberborn.SingletonSystem;
-using Timberborn.TerrainSystem;
 using Timberborn.ToolSystem;
 using UnityEngine;
-using UnityEngine.UIElements;
-//using Cordial.Mods.ForestTool.Scripts.UI.Events;
+using Cordial.Mods.ForestTool.Scripts.UI.Events;
 using Timberborn.PlantingUI;
 using Timberborn.SelectionSystem;
 using Timberborn.TerrainQueryingSystem;
@@ -93,14 +90,14 @@ namespace Cordial.Mods.ForestTool.Scripts
         public void Enter()
         {
             _selectionToolProcessor.Enter();
-            //_eventBus.Post(new ForestToolSelectedEvent(this));
+            _eventBus.Post(new ForestToolSelectedEvent(this));
         }
 
         public void Exit()
         {
             _plantingSelectionService.UnhighlightAll();
             _selectionToolProcessor.Exit();
-            //_eventBus.Post(new ForestToolUnselectedEvent(this));
+            _eventBus.Post(new ForestToolUnselectedEvent(this));
         }
 
         public void PostProcessInput()
@@ -145,21 +142,5 @@ namespace Cordial.Mods.ForestTool.Scripts
             }
             _eventBus.Post(new PlantingAreaMarkedEvent());
         }
-
-/*        [OnEvent]
-        public void OnForestToolConfigChangeEvent(ForestToolConfigChangeEvent forestToolConfigChangeEvent)
-        {
-            if (forestToolConfigChangeEvent == null || !ForestToolParam.ParamInitDone)
-                return;
-
-            _emptySpotsEnabled = forestToolConfigChangeEvent.ForestToolConfig.EmptySpotsEnabled;
-            ForestToolParam.SetResourceState(ForestToolParam.NameEmpty, _emptySpotsEnabled);
-
-            _treeToggleDict = forestToolConfigChangeEvent.ForestToolConfig.GetTreeDict();
-            foreach (KeyValuePair<string, bool> kvp in _treeToggleDict)
-            {
-                ForestToolParam.SetResourceState(kvp.Key, kvp.Value);
-            }
-        }*/
     }
 }
