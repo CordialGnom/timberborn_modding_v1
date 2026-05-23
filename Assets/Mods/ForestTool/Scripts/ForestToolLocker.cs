@@ -5,6 +5,7 @@ using Timberborn.EntitySystem;
 using Timberborn.Localization;
 using Timberborn.ScienceSystem;
 using Timberborn.ToolSystem;
+using UnityEngine;
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
@@ -38,6 +39,7 @@ namespace Cordial.Mods.ForestTool.Scripts
         {
             bool shouldLock = IsForestTool(tool, out ForestToolService overrideTool);
 
+
             if (true == shouldLock)
             {
                 BuildingSpec foresterSpec = new BuildingSpec();
@@ -53,6 +55,8 @@ namespace Cordial.Mods.ForestTool.Scripts
                         break;
                     }
                 }
+                Debug.Log("ForestTool: ShouldLock result = " + shouldLock
++                   ", specFound = " + specFound);
 
                 if (specFound)
                 {
@@ -73,6 +77,9 @@ namespace Cordial.Mods.ForestTool.Scripts
         {
             BuildingSpec foresterSpec = new BuildingSpec();
             bool specFound = false;
+
+            Debug.Log("ForestTool: TryToUnlock, unlocked = "
+          + _buildingUnlockingService.Unlocked(foresterSpec));
 
             // get a list of all buildings and search for the beehive
             foreach (BuildingSpec buildingspec in _buildingService.Buildings)

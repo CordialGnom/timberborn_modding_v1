@@ -1,25 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using TimberApi.Tools;
 using Timberborn.Buildings;
 using Timberborn.Localization;
-using Timberborn.PrefabSystem;
 using Timberborn.Planting;
-using Timberborn.PlantingUI;
-using Timberborn.ScienceSystem;
 using Timberborn.SelectionToolSystem;
 using Timberborn.SingletonSystem;
-using Timberborn.TerrainQueryingSystem;
+using Timberborn.TerrainSystem;
 using Timberborn.ToolSystem;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Cordial.Mods.ForestTool.Scripts.UI.Events;
+//using Cordial.Mods.ForestTool.Scripts.UI.Events;
+using Timberborn.PlantingUI;
 using Timberborn.SelectionSystem;
-using Moq;
-using Timberborn.BlueprintSystem;
-using Timberborn.ForestryUI;
+using Timberborn.TerrainQueryingSystem;
 using Timberborn.ToolSystemUI;
 
 namespace Cordial.Mods.ForestTool.Scripts
@@ -28,245 +21,145 @@ namespace Cordial.Mods.ForestTool.Scripts
     {
         private static readonly string TitleLocKey = "Cordial.ForestTool.DisplayName";
         private static readonly string DescriptionLocKey = "Cordial.ForestTool.Description";
-        private static readonly string RequirementLocKey = "Coridal.ForestTool.Requirement";
-        private static readonly string ToolBuildingLocKey = "Building.Forester.DisplayName";
-
         private static readonly string CursorKey = "PlantingCursor";
 
-        private static bool isUnlocked; 
-
         private readonly ILoc _loc;
-        private EventBus _eventBus;
-        private static VisualElement _root;
+        private readonly EventBus _eventBus;
 
-        // area selection 
+        // Area selection
         private readonly SelectionToolProcessor _selectionToolProcessor;
         private readonly ToolUnlockingService _toolUnlockingService;
-        public readonly ISpecService _specService;
 
-        // planting
-        private PlantingAreaValidator _plantingAreaValidator;
+        // Planting
+        private readonly PlantingAreaValidator _plantingAreaValidator;
         private readonly PlantingSelectionService _plantingSelectionService;
-        private PlantingService _plantingService;
-        private TerrainAreaService _terrainAreaService;
+        private readonly PlantingService _plantingService;
+        private readonly TerrainAreaService _terrainAreaService;
 
-        // highlighting
+        // Highlighting
         private readonly AreaHighlightingService _areaHighlightingService;
         public Color _plantingToolTile;
         public Color _toolNoActionTileColor;
 
-        // availability 
-        private readonly BuildingUnlockingService _buildingUnlockingService;
-        private readonly BuildingService _buildingService;
-
         private readonly ForestToolSpecService _forestToolSpecService;
 
-        // planting parametrization
-        Dictionary<string, bool> _treeToggleDict = new();
+        // Runtime config
+        private Dictionary<string, bool> _treeToggleDict = new();
         private bool _emptySpotsEnabled = false;
 
-
-        //private static readonly string[] _asResource = { "Oak", "Birch", "ChestnutTree", "Pine", "Maple" };
-
-        // todo check how to access generic specifications, and beaver faction specifications
-        //"C:\Users\simon\TreeMix\Assets\Timberborn\Resources\specifications\prefabcollections\PrefabCollectionSpecification.NaturalResources.naturalresources"
-
-        protected readonly MethodInfo EnterPlantingModeMethod;
-        protected readonly MethodInfo ExitPlantingModeMethod;
-
-        public ForestToolService(SelectionToolProcessorFactory selectionToolProcessorFactory,
-                            PlantingSelectionService plantingSelectionService,
-                            PlantingAreaValidator plantingAreaValidator,
-                            AreaHighlightingService areaHighlightingService,
-                            PlantingService plantingService,
-                            TerrainAreaService terrainAreaService,
-                            ToolUnlockingService toolUnlockingService,
-                            ILoc loc,
-                            EventBus eventBus,
-                            BuildingService buildingService,
-                            ISpecService specService,
-                            BuildingUnlockingService buildingUnlockingService,
-                            ForestToolSpecService forestToolSpecService
-                                )
+        public ForestToolService(
+            SelectionToolProcessorFactory selectionToolProcessorFactory,
+            PlantingSelectionService plantingSelectionService,
+            PlantingAreaValidator plantingAreaValidator,
+            AreaHighlightingService areaHighlightingService,
+            PlantingService plantingService,
+            TerrainAreaService terrainAreaService,
+            ToolUnlockingService toolUnlockingService,
+            ILoc loc,
+            EventBus eventBus,
+            ForestToolSpecService forestToolSpecService)
         {
-
-            _selectionToolProcessor = selectionToolProcessorFactory.Create(new Action<IEnumerable<Vector3Int>,
-                                                                                    Ray>(this.PreviewCallback),
-                                                                                    new Action<IEnumerable<Vector3Int>,
-                                                                                    Ray>(this.ActionCallback),
-                                                                                    new Action(ShowNoneCallback),
-                                                                                   CursorKey);
+            _selectionToolProcessor = selectionToolProcessorFactory.Create(
+                new Action<IEnumerable<Vector3Int>, Ray>(PreviewCallback),
+                new Action<IEnumerable<Vector3Int>, Ray>(ActionCallback),
+                new Action(ShowNoneCallback),
+                CursorKey);
 
             _plantingAreaValidator = plantingAreaValidator;
             _plantingService = plantingService;
             _plantingSelectionService = plantingSelectionService;
             _terrainAreaService = terrainAreaService;
             _toolUnlockingService = toolUnlockingService;
-            _buildingService = buildingService;
-            _buildingUnlockingService = buildingUnlockingService;
             _forestToolSpecService = forestToolSpecService;
-            _specService = specService;
-
-
             _areaHighlightingService = areaHighlightingService;
-
             _eventBus = eventBus;
             _loc = loc;
-            _root = new VisualElement();
-
         }
 
         public void Load()
         {
-            string text = this._loc.T<string>(RequirementLocKey, _loc.T(ToolBuildingLocKey));
-            this._eventBus.Register((object)this);
-
+            _eventBus.Register(this);
             _plantingToolTile = new Color(0, 0.8f, 0, 1);
             _toolNoActionTileColor = new Color(0.7f, 0.7f, 0, 1);
         }
 
         public ToolDescription DescribeTool()
         {
-            return new ToolDescription.Builder(this._loc.T(ForestToolService.TitleLocKey)).AddSection(this._loc.T(ForestToolService.DescriptionLocKey)).Build();
+            return new ToolDescription.Builder(_loc.T(TitleLocKey))
+                .AddSection(_loc.T(DescriptionLocKey))
+                .Build();
         }
 
         public void Enter()
         {
-            // check if tool can be entered (forester available)
-            // require access to either "Forester" or the "Trees". Therefore check if
-            // the trees can be planted...
-            if (this._toolUnlockingService != null)
-            {
-                this._toolUnlockingService.TryToUnlock((ITool)this);
-            }
-            else
-            {
-                // get faction forester specific building
-                if ("" != _forestToolSpecService.FactionId)
-                {
-                    BuildingSpec foresterSpec = new BuildingSpec();
-
-                    // get a list of all buildings
-                    foreach (BuildingSpec buildingspec in _buildingService.Buildings)
-                    {
-                        if (buildingspec.ToString().Contains("Forester"))
-                        {
-                            foresterSpec = buildingspec;
-                            break;
-                        }
-                    }
-
-                    if (foresterSpec != null)
-                    {
-                        IsUnlocked = _buildingUnlockingService.Unlocked(foresterSpec);
-
-                        if (true == IsUnlocked)
-                        {
-                            // activate tool
-                            this._selectionToolProcessor.Enter();
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.LogError("ForestTool: Faction not found");
-                }
-
-                this._eventBus.Post((object)new ForestToolSelectedEvent(this));
-            }
+            _selectionToolProcessor.Enter();
+            //_eventBus.Post(new ForestToolSelectedEvent(this));
         }
-
-
-        public bool IsUnlocked { get { return isUnlocked; } set { isUnlocked = value; } }
 
         public void Exit()
         {
-            this._plantingSelectionService.UnhighlightAll();
-            this._selectionToolProcessor.Exit();
-            this._eventBus.Post((object)new ForestToolUnselectedEvent(this));
+            _plantingSelectionService.UnhighlightAll();
+            _selectionToolProcessor.Exit();
+            //_eventBus.Post(new ForestToolUnselectedEvent(this));
         }
 
-        // Preview and Action Callbacks required for selection Tool Processor Factor
+        public void PostProcessInput()
+        {
+            // placeholder
+        }
+
         private void PreviewCallback(IEnumerable<Vector3Int> inputBlocks, Ray ray)
         {
-            foreach (Vector3Int leveledCoordinate in this._terrainAreaService.InMapLeveledCoordinates(inputBlocks, ray))
+            foreach (Vector3Int coord in _terrainAreaService.InMapLeveledCoordinates(inputBlocks, ray))
             {
-                this._areaHighlightingService.DrawTile(leveledCoordinate, this._plantingToolTile);
+                _areaHighlightingService.DrawTile(coord, _plantingToolTile);
             }
-            this._areaHighlightingService.Highlight();
+            _areaHighlightingService.Highlight();
         }
 
         private void ActionCallback(IEnumerable<Vector3Int> inputBlocks, Ray ray)
         {
-            if (this._toolUnlockingService != null)
-                this._toolUnlockingService.TryToUnlock((ITool)this);
-            else
-                this._areaHighlightingService.UnhighlightAll();
-                this.Plant(inputBlocks, ray);
+            Plant(inputBlocks, ray);
         }
+
         private void ShowNoneCallback()
         {
-            this._areaHighlightingService.UnhighlightAll();
+            _areaHighlightingService.UnhighlightAll();
         }
 
-        private void Plant(IEnumerable<Vector3Int> inputBlocks, Ray ray)        // based on PlantingTool function
+        private void Plant(IEnumerable<Vector3Int> inputBlocks, Ray ray)
         {
-            string resourceName; ;
-
-            // here randomize plant name for each entry in list
-
-            foreach (Vector3Int leveledCoordinate in this._terrainAreaService.InMapLeveledCoordinates(inputBlocks, ray))
+            foreach (Vector3Int coord in _terrainAreaService.InMapLeveledCoordinates(inputBlocks, ray))
             {
-                resourceName = GetRandomPlantableName();
+                string resourceName = ForestToolParam.GetNextRandomResourceName();
 
-                if ((resourceName.Equals(ForestToolParam.NameEmpty, StringComparison.OrdinalIgnoreCase))
-                    || (resourceName.Equals("", StringComparison.OrdinalIgnoreCase))
-                )
+                if (string.IsNullOrEmpty(resourceName)
+                    || resourceName.Equals(ForestToolParam.NameEmpty, StringComparison.OrdinalIgnoreCase))
                 {
-                    // remove possible exisiting planting coordinates
-                    _plantingService.UnsetPlantingCoordinates(leveledCoordinate);                    
+                    _plantingService.UnsetPlantingCoordinates(coord);
                 }
-                else
+                else if (_plantingAreaValidator.CanPlant(coord, resourceName))
                 {
-
-                    if (_plantingAreaValidator.CanPlant(leveledCoordinate, resourceName))
-                    {
-                        _plantingService.SetPlantingCoordinates(leveledCoordinate, resourceName);
-                    }
+                    _plantingService.SetPlantingCoordinates(coord, resourceName);
                 }
-
             }
-            _eventBus.Post((object)new PlantingAreaMarkedEvent());
+            _eventBus.Post(new PlantingAreaMarkedEvent());
         }
 
-        private string GetRandomPlantableName()
-        {
-            return ForestToolParam.GetNextRandomResourceName();
-        }
-
-        public void PostProcessInput()      // originally virtual (to be called elsewhere)
-        {
-            // currently no implementation, just placeholder
-            return;
-        }
-
-        [OnEvent]
+/*        [OnEvent]
         public void OnForestToolConfigChangeEvent(ForestToolConfigChangeEvent forestToolConfigChangeEvent)
         {
-            if (null == forestToolConfigChangeEvent)
+            if (forestToolConfigChangeEvent == null || !ForestToolParam.ParamInitDone)
                 return;
 
-            if (ForestToolParam.ParamInitDone)
-            {
-                _emptySpotsEnabled = forestToolConfigChangeEvent.ForestToolConfig.EmptySpotsEnabled;
-                ForestToolParam.SetResourceState(ForestToolParam.NameEmpty, _emptySpotsEnabled);
+            _emptySpotsEnabled = forestToolConfigChangeEvent.ForestToolConfig.EmptySpotsEnabled;
+            ForestToolParam.SetResourceState(ForestToolParam.NameEmpty, _emptySpotsEnabled);
 
-                _treeToggleDict = forestToolConfigChangeEvent.ForestToolConfig.GetTreeDict();
-                foreach (KeyValuePair<string, bool> kvp in _treeToggleDict)
-                {
-                    ForestToolParam.SetResourceState(kvp.Key, kvp.Value);
-                }
+            _treeToggleDict = forestToolConfigChangeEvent.ForestToolConfig.GetTreeDict();
+            foreach (KeyValuePair<string, bool> kvp in _treeToggleDict)
+            {
+                ForestToolParam.SetResourceState(kvp.Key, kvp.Value);
             }
-        }
+        }*/
     }
 }

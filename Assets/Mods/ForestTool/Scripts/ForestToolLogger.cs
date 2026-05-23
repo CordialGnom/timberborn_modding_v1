@@ -2,11 +2,13 @@
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
-    internal class ForestToolLogger : IModStarter 
+    // IModStarter requires StartMod(IModEnvironment modEnvironment) in V1.
+    // This class is the entry point the game uses to recognize the mod.
+    internal class ForestToolLogger : IModStarter
     {
-        public void StartMod(IModEnvironment)
+        public void StartMod(IModEnvironment modEnvironment)
         {
-            // required to start mod
+            // No startup logic needed; DI handles everything via configurators.
         }
     }
 }

@@ -1,102 +1,71 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using Timberborn.SingletonSystem;
-using UnityEngine;
 using Timberborn.Forestry;
 using Timberborn.GameFactionSystem;
-using Timberborn.FactionSystem;
-using Timberborn.BlueprintSystem;
-
+using Timberborn.NaturalResources;
+using Timberborn.Planting;
+using Timberborn.SingletonSystem;
+using Timberborn.TemplateSystem;
+using UnityEngine;
 
 namespace Cordial.Mods.ForestTool.Scripts
 {
+    /// <summary>
+    /// Loads faction and plantable resource information at game start.
+    /// Replaces the old SpecService-based approach with TemplateService,
+    /// which is the native V1 way to enumerate specs.
+    /// </summary>
     public class ForestToolSpecService : ILoadableSingleton
     {
+        private readonly TemplateService _templateService;
+        private readonly FactionService _factionService;
 
-        // access to specs
-        private static SpecService _specService;
-
-        // access to faction
-        private static FactionService _factionService;
-
-        // faction information
-        private static string _factionId;
-
+        private string _factionId = string.Empty;
         public string FactionId => _factionId;
 
-        public ForestToolSpecService( SpecService specService,
-                                      FactionService factionService)
+        public ForestToolSpecService(
+            TemplateService templateService,
+            FactionService factionService)
         {
-            _specService = specService;
+            _templateService = templateService;
             _factionService = factionService;
         }
 
         public void Load()
         {
-            if ((null == _specService)
-                || (null == _factionService))
+            if (_templateService == null || _factionService == null)
             {
-                Debug.LogError("ForestTool: Missing Service");
+                Debug.LogError("ForestTool: Missing required service in ForestToolSpecService.");
+                return;
             }
-            else
-            {
-                _factionId = GetFactionName();
 
-                // only call parameter init once
-                ForestToolParam.ForestToolSpecService = this;
-                ForestToolParam.InitConfigDefault();
-            }
+            _factionId = _factionService.Current?.Id ?? string.Empty;
+
+            ForestToolParam.ForestToolSpecService = this;
+            ForestToolParam.InitConfigDefault();
         }
 
-        public ImmutableArray<string> GetAllTrees()
-        {
-            List<string> treeTypes = new();
-
-            if (null != _specService)
-            { 
-                var treeComponents = _specService.GetSpecs<TreeComponentSpec>();
-
-                //todo Cordial: Load a spec group
-                foreach (var treeObject in treeComponents)
-                {
-                    treeTypes.Add(treeObject.ToString());
-                }
-            }
-            return treeTypes.ToImmutableArray<string>();
-        }
-        private static string GetFactionName()
-        {
-            string factionId = "";
-            FactionSpec _activeFaction;
-
-            if (null != _factionService)
-            {
-                _activeFaction = _factionService.Current;
-                factionId = _activeFaction.Id;
-            }
-
-            return factionId;
-        }
+        /// <summary>
+        /// Returns names of all plantable trees and bushes (used to populate
+        /// the randomisation pool in ForestToolParam).
+        /// Uses NaturalResourceSpec to filter to actual forestry plantables.
+        /// </summary>
         public ImmutableArray<string> GetAllForestryPlantables()
         {
-            List<string> treeTypes = new();
+            List<string> names = new();
 
-            if (null != _specService)
+            foreach (PlantableSpec plantable in _templateService.GetAll<PlantableSpec>())
             {
-                var treeComponents = _specService.GetSpecs<TreeComponentSpec>();
-                var bushComponents = _specService.GetSpecs<BushSpec>();
-
-                foreach (var bushObject in bushComponents)
+                // Only include things that have a NaturalResourceSpec
+                // (i.e. trees and bushes, not crops)
+                if (plantable.HasSpec<NaturalResourceSpec>()
+                    && (plantable.HasSpec<BushSpec>() || plantable.HasSpec<TreeComponentSpec>()))
                 {
-                    treeTypes.Add(bushObject.ToString());
-                }
-
-                foreach (var treeObject in treeComponents)
-                {
-                    treeTypes.Add(treeObject.ToString());
+                    names.Add(plantable.TemplateName);
                 }
             }
-            return treeTypes.ToImmutableArray<string>();
+
+            return names.ToImmutableArray();
         }
     }
 }
