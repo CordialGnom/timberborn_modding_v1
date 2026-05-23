@@ -2,11 +2,6 @@
   "Name": "Forest Tool",
   "Version": "1.0.0.0",
   "Id": "Cordial.ForestTool",
-  "MinimumGameVersion": "1.0.13.0",
+  "MinimumGameVersion": "1.0.13.1",
   "Description": "Tools for (re)forestation.",
-  "RequiredMods": [
-	{
-		"Id": "Harmony"
-	}
-  ]
 }
