@@ -19,6 +19,7 @@ namespace Cordial.Mods.ForestTool.Scripts
         private readonly ToolButtonFactory _toolButtonFactory;
         private readonly ToolButtonService _toolButtonService;
         private readonly ToolGroupService _toolGroupService;
+        private readonly ToolUnlockingService _toolUnlockingService;
         private readonly IAssetLoader _assetLoader;
 
         public ForestToolButtonInitializer(
@@ -26,12 +27,14 @@ namespace Cordial.Mods.ForestTool.Scripts
             ToolButtonFactory toolButtonFactory,
             ToolButtonService toolButtonService,
             ToolGroupService toolGroupService,
+            ToolUnlockingService toolUnlockingService,
             IAssetLoader assetLoader)
         {
             _forestToolService = forestToolService;
             _toolButtonFactory = toolButtonFactory;
             _toolButtonService = toolButtonService;
             _toolGroupService = toolGroupService;
+            _toolUnlockingService = toolUnlockingService;
             _assetLoader = assetLoader;
         }
 
@@ -82,6 +85,9 @@ namespace Cordial.Mods.ForestTool.Scripts
             // ToolButtonService.PostLoad() has already run, so our button
             // missed the loop — call PostLoad() manually to register click/hover
             toolButton.PostLoad();
+
+            // Manually trigger lock check since we missed ToolButtonService.PostLoad()
+            _toolUnlockingService.LockIfNeeded(_forestToolService);
         }
     }
 }

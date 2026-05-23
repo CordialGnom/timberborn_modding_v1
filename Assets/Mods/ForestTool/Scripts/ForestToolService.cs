@@ -42,7 +42,6 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         // Runtime config
         private Dictionary<string, bool> _treeToggleDict = new();
-        private bool _emptySpotsEnabled = false;
 
         public ForestToolService(
             SelectionToolProcessorFactory selectionToolProcessorFactory,
@@ -89,6 +88,17 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         public void Enter()
         {
+            if (_toolUnlockingService.IsLocked(this))
+            {
+                _toolUnlockingService.TryToUnlock(this,
+                    successCallback: () => {
+                        _selectionToolProcessor.Enter();
+                        _eventBus.Post(new ForestToolSelectedEvent(this));
+                    },
+                    failCallback: () => { }  // dialog already shown by locker
+                );
+                return;
+            }
             _selectionToolProcessor.Enter();
             _eventBus.Post(new ForestToolSelectedEvent(this));
         }
@@ -116,7 +126,10 @@ namespace Cordial.Mods.ForestTool.Scripts
 
         private void ActionCallback(IEnumerable<Vector3Int> inputBlocks, Ray ray)
         {
-            Plant(inputBlocks, ray);
+            if (!_toolUnlockingService.IsLocked(this))
+            {
+                Plant(inputBlocks, ray);
+            }
         }
 
         private void ShowNoneCallback()
