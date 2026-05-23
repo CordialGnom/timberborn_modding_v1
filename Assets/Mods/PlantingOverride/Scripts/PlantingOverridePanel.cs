@@ -65,9 +65,9 @@ namespace Cordial.Mods.PlantingOverride.Scripts.UI
         {
             _container = new VisualElement();
             _container.style.position = Position.Absolute;
-            _container.style.top      = 100;
+            _container.style.top      = 120;
             _container.style.right    = 10;
-            _container.style.width    = 260;
+            _container.style.width    = 300;
 
             _fragment = new NineSliceVisualElement();
             _fragment.AddToClassList(UiClasses.Fragment);
