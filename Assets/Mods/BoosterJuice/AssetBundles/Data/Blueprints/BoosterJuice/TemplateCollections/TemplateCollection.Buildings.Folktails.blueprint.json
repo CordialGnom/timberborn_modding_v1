@@ -1,0 +1,9 @@
+{
+  "TemplateCollectionSpec": {
+    "CollectionId": "Buildings.Folktails",
+    "Blueprints#append": [
+	"Buildings/Science/CordialChemist/CordialChemist.Folktails.blueprint","Buildings/Wood/CordialFertilizerDump/CordialFertilizerDump.FolkTails.blueprint"
+
+    ]
+  }
+}

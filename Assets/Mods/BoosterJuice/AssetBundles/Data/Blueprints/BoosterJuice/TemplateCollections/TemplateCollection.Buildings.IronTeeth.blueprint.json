@@ -1,0 +1,8 @@
+{
+  "TemplateCollectionSpec": {
+    "CollectionId": "Buildings.IronTeeth",
+    "Blueprints#append": [
+	"Buildings/Science/CordialChemist/CordialChemist.IronTeeth.blueprint","Buildings/Wood/CordialFertilizerDump/CordialFertilizerDump.IronTeeth.blueprint"
+    ]
+  }
+}
