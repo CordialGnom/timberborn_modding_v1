@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using Timberborn.BaseComponentSystem;
 using Timberborn.BlockSystem;
+using Timberborn.BlockingSystem;
 using Timberborn.BuildingRange;
 using Timberborn.Forestry;
-using Timberborn.PrefabSystem;
 using Timberborn.Yielding;
 using Timberborn.Goods;
 using UnityEngine;
 using System;
 using Timberborn.TimeSystem;
 using Timberborn.Growing;
-using Timberborn.BuildingsBlocking;
 using Timberborn.Persistence;
 using Timberborn.GoodConsumingBuildingSystem;
 using Timberborn.InventorySystem;
@@ -26,12 +25,13 @@ using Timberborn.Cutting;
 using Timberborn.GoodStackSystem;
 using Timberborn.NaturalResourcesLifecycle;
 using Timberborn.WorldPersistence;
+using Timberborn.Localization;
+using Timberborn.EntitySystem;
 
 namespace Cordial.Mods.BoosterJuice.Scripts {
   public class GrowthFertilizationBuilding : BaseComponent, 
         IBuildingWithRange,
         IFinishedStateListener,
-        IPausableComponent,
         IPersistentEntity
     {
 
@@ -66,13 +66,13 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
         private static readonly PropertyKey<bool> FertilizeYieldKey = new PropertyKey<bool>("FertilizeYieldKey");
 
         // from GoodConsumingBuilding
-        private BlockableBuilding _blockableBuilding;
+        private BlockableObject _blockableObject;
         private readonly List<GoodConsumingToggle> _toggles = new List<GoodConsumingToggle>();
         private float _supplyLeft;
 
         // tree handling
         private readonly List<Growable> _nearbyGrowingTrees = new List<Growable>();
-        private readonly List<TreeComponentSpec> _nearbyYieldTrees = new List<TreeComponentSpec>();
+        private readonly List<TreeComponent> _nearbyYieldTrees = new List<TreeComponent>();
 
         public Inventory Inventory { get; private set; }
 
@@ -132,12 +132,11 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
         private BlockObjectRange _blockObjectRange;
 
         private readonly List<Yielder> _yieldersInArea = new();
+        private ILoc _loc;
+        private LabeledEntitySpec _labeledEntitySpec;
 
         private ITimeTriggerFactory _timeTriggerFactory;
         private ITimeTrigger _timeTrigger;
-
-        // unknown
-        private PrefabSpec _prefab;
 
 
         [Inject]
@@ -145,19 +144,21 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
                                         TreeCuttingArea treeCuttingArea,
                                         ITimeTriggerFactory timeTriggerFactory,
                                         GrowthFertilizationAreaService growthFertilizationAreaService,
-                                        EventBus eventBus )
+                                        EventBus eventBus,
+                                        ILoc loc)
         {
-            this._treeCuttingArea = treeCuttingArea;
-            this._blockService = blockService;
-            this._growthFertilizationAreaService = growthFertilizationAreaService;
-            this._timeTriggerFactory = timeTriggerFactory;
-            this._eventBus = eventBus;
+            _treeCuttingArea = treeCuttingArea;
+            _blockService = blockService;
+            _growthFertilizationAreaService = growthFertilizationAreaService;
+            _timeTriggerFactory = timeTriggerFactory;
+            _eventBus = eventBus;
+            _loc = loc;
         }
         public void Awake()
         {
-            this._blockableBuilding = this.GetComponentFast<BlockableBuilding>();
-            this._blockObjectRange = this.GetComponentFast<BlockObjectRange>();
-            this._prefab = this.GetComponentFast<PrefabSpec>();
+            this._blockableObject = this.GetComponent<BlockableObject>();
+            this._blockObjectRange = this.GetComponent<BlockObjectRange>();
+            this._labeledEntitySpec = this.GetComponent<LabeledEntitySpec>();
             // set up time triggering response
             this._timeTrigger = this._timeTriggerFactory.Create(new Action(this.FertilizeNearbyGrowingTrees), _timeTriggerCallCountPerDay);
 
@@ -165,13 +166,11 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
             _buildingId =   this._growthFertilizationAreaService.AddBuilding(this);
 
             // access working hours / productivity
-            this._workplaceWorkingHours = this.GetComponentFast<WorkplaceWorkingHours>();
-            this._workshop = this.GetComponentFast<Workshop>();
+            this._workplaceWorkingHours = this.GetComponent<WorkplaceWorkingHours>();
+            this._workshop = this.GetComponent<Workshop>();
 
 
             this._eventBus.Register((object)this);
-
-            this.enabled = false;
         }
         public void InitializeInventory(Inventory inventory)
         {
@@ -226,7 +225,7 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
         {
             foreach (Vector3Int coordinates in this.GetBlocksInRange())
             {
-                TreeComponentSpec treeComponentAt = this._blockService.GetBottomObjectComponentAt<TreeComponentSpec>(coordinates);
+                TreeComponent treeComponentAt = this._blockService.GetBottomObjectComponentAt<TreeComponent>(coordinates);
 
                 if (treeComponentAt != null)
                 {
@@ -241,7 +240,7 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
             return this._blockObjectRange.GetBlocksOnTerrainInRectangularRadius(this._growthFertilizationRadius);
         }
 
-        public string RangeName => this._prefab.PrefabName;
+        public string RangeName => _loc.T(_labeledEntitySpec.DisplayNameLocKey);
 
         public IEnumerable<Yielder> YieldersInArea()
         {
@@ -255,7 +254,6 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
 
             this._timeTrigger.Resume();
             this.Inventory.Enable();
-            this.enabled = true;
         }
 
         public void OnExitFinishedState()
@@ -265,7 +263,6 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
 
             this._timeTrigger.Pause();
             this.Inventory.Disable();
-            this.enabled = false;
         }
 
         public void Save(IEntitySaver entitySaver)
@@ -335,7 +332,7 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
 
         private bool UpdateConsumption(float goodConsume)
         {
-            this.IsConsuming = !this.ConsumptionPaused && this._blockableBuilding.IsUnblocked && this.ConsumeSupplies(goodConsume);
+            this.IsConsuming = !this.ConsumptionPaused && this._blockableObject.IsUnblocked && this.ConsumeSupplies(goodConsume);
 
             return this.IsConsuming;
         }
@@ -415,11 +412,11 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
                 if (FertilizeYieldActive)
                 {
                     // apply fertilizer to "yielding" trees
-                    foreach (TreeComponentSpec treeComponent in this._nearbyYieldTrees)
+                    foreach (TreeComponent treeComponent in this._nearbyYieldTrees)
                     {
                         // get original yield growth time
-                        treeComponent.TryGetComponentFast<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
-                        treeComponent.TryGetComponentFast<Gatherable>(out Gatherable gatherable);
+                        treeComponent.TryGetComponent<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
+                        treeComponent.TryGetComponent<Gatherable>(out Gatherable gatherable);
 
                         if ((null != gatherable)
                             && (null != yieldGrower))
@@ -468,12 +465,12 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
 
             foreach (Vector3Int coordinates in this._growthFertilizationAreaService.GetRegisteredFertilizationArea(_buildingId))
             {
-                TreeComponentSpec treeComponentAt = this._blockService.GetBottomObjectComponentAt<TreeComponentSpec>(coordinates);
+                TreeComponent treeComponentAt = this._blockService.GetBottomObjectComponentAt<TreeComponent>(coordinates);
 
                 if (treeComponentAt != null)
                 {
-                    treeComponentAt.TryGetComponentFast<Growable>(out Growable growable);
-                    treeComponentAt.TryGetComponentFast<LivingNaturalResource>(out LivingNaturalResource livingResource);
+                    treeComponentAt.TryGetComponent<Growable>(out Growable growable);
+                    treeComponentAt.TryGetComponent<LivingNaturalResource>(out LivingNaturalResource livingResource);
 
                     if ((growable != null)
                         && (livingResource != null))
@@ -490,16 +487,16 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
                             else if (growable.IsGrown)
                             {
                                 // check if component is only a stump
-                                treeComponentAt.TryGetComponentFast<Cuttable>(out Cuttable cuttable);
-                                treeComponentAt.TryGetComponentFast<Gatherable>(out Gatherable gatherable);
-                                treeComponentAt.TryGetComponentFast<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
+                                treeComponentAt.TryGetComponent<Cuttable>(out Cuttable cuttable);
+                                treeComponentAt.TryGetComponent<Gatherable>(out Gatherable gatherable);
+                                treeComponentAt.TryGetComponent<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
 
                                 // growable is already known
                                 if ((cuttable != null)
                                     && (yieldGrower != null))
                                 {
                                     bool gatherableEmpty = false;
-                                    bool invIsEmpty = livingResource.GetComponentFast<GoodStack>().Inventory.IsEmpty;
+                                    bool invIsEmpty = livingResource.GetComponent<GoodStack>().Inventory.IsEmpty;
 
                                     // must be a cuttable
                                     // must be a living resource
@@ -544,12 +541,12 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
 
             foreach (Vector3Int coordinates in this._growthFertilizationAreaService.GetRegisteredFertilizationArea(_buildingId))
             {
-                TreeComponentSpec treeComponentAt = this._blockService.GetBottomObjectComponentAt<TreeComponentSpec>(coordinates);
+                TreeComponent treeComponentAt = this._blockService.GetBottomObjectComponentAt<TreeComponent>(coordinates);
 
                 if (treeComponentAt != null)
                 {
-                    treeComponentAt.TryGetComponentFast<Growable>(out Growable growable);
-                    treeComponentAt.TryGetComponentFast<LivingNaturalResource>(out LivingNaturalResource livingResource);
+                    treeComponentAt.TryGetComponent<Growable>(out Growable growable);
+                    treeComponentAt.TryGetComponent<LivingNaturalResource>(out LivingNaturalResource livingResource);
 
                     if ((growable != null)
                         && (livingResource != null))
@@ -566,16 +563,16 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
                             else if (growable.IsGrown)
                             {
                                 // check if component is only a stump
-                                treeComponentAt.TryGetComponentFast<Cuttable>(out Cuttable cuttable);
-                                treeComponentAt.TryGetComponentFast<Gatherable>(out Gatherable gatherable);
-                                treeComponentAt.TryGetComponentFast<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
+                                treeComponentAt.TryGetComponent<Cuttable>(out Cuttable cuttable);
+                                treeComponentAt.TryGetComponent<Gatherable>(out Gatherable gatherable);
+                                treeComponentAt.TryGetComponent<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
 
                                 // growable is already known
                                 if ((cuttable != null)
                                     && (yieldGrower != null))
                                 {
                                     bool gatherableEmpty = false;
-                                    bool invIsEmpty = livingResource.GetComponentFast<GoodStack>().Inventory.IsEmpty;
+                                    bool invIsEmpty = livingResource.GetComponent<GoodStack>().Inventory.IsEmpty;
 
                                     // must be a cuttable
                                     // must be a living resource

@@ -1,10 +1,4 @@
-﻿// Based on the: 
-// Timberborn Mod: Automation
-// Author: igor.zavoychinskiy@gmail.com
-// License: Public Domain
-
-using TimberApi.DependencyContainerSystem;
-using Timberborn.BaseComponentSystem;
+﻿using Timberborn.BaseComponentSystem;
 using Timberborn.BlockSystem;
 using Timberborn.CoreUI;
 using Timberborn.EntityPanelSystem;
@@ -17,146 +11,148 @@ using UnityEngine.UIElements;
 
 namespace Cordial.Mods.BoosterJuice.Scripts.UI
 {
-
     sealed class GrowthFertilizationGrowableFragment : IEntityPanelFragment
     {
-        readonly UiFactory _uiFactory;
-
-        private TreeComponentSpec _growthFertilizationTreeComponent;
-        private GrowthFertilizationAreaService _growthFertilizationAreaService;
-        private Vector3Int _growableCoordinates;
-
-
-        private VisualElement _root = new();
-        private readonly VisualElement _growthElement = new();
-        private readonly VisualElement _yieldElement = new();
-
-        private Label _title = new();
-        private Label _growthDailyInfo = new();
-        private Label _growthAvgInfo = new();
-        private Label _yieldAvgInfo = new();
-
-        // localiations
-        // _loc.T(DescriptionLocKey)
-        private readonly ILoc _loc;
         private static readonly string TitleLocKey = "Cordial.TreeFragment.Title";
         private static readonly string GrowthDailyLocKey = "Cordial.TreeFragment.GrowthDaily";
         private static readonly string GrowthAvgLocKey = "Cordial.TreeFragment.GrowthAverage";
         private static readonly string YieldAvgLocKey = "Cordial.TreeFragment.YieldAverage";
         private static readonly string UnitDayLocKey = "Cordial.Unit.Days";
 
-        public GrowthFertilizationGrowableFragment( UiFactory uiFactory,
-                                                    ILoc loc)
+        private readonly ILoc _loc;
+        private readonly GrowthFertilizationAreaService _areaService;
+
+        private TreeComponent _treeComponent;
+        private Vector3Int _coordinates = Vector3Int.zero;
+
+        private VisualElement _root;
+        private VisualElement _growthElement;
+        private VisualElement _yieldElement;
+        private Label _title;
+        private Label _growthDailyInfo;
+        private Label _growthAvgInfo;
+        private Label _yieldAvgInfo;
+
+        public GrowthFertilizationGrowableFragment(
+            ILoc loc,
+            GrowthFertilizationAreaService areaService)
         {
-            _uiFactory = uiFactory;
             _loc = loc;
+            _areaService = areaService;
         }
 
         public VisualElement InitializeFragment()
         {
-            this._growthFertilizationAreaService = DependencyContainer.GetInstance<GrowthFertilizationAreaService>();
-            this._growableCoordinates = Vector3Int.zero;
+            _root = new NineSliceVisualElement();
+            _root.AddToClassList("entity-sub-panel");
+            _root.AddToClassList("bg-sub-box--green");
+            _root.style.paddingTop = 6;
+            _root.style.paddingBottom = 6;
+            _root.style.paddingLeft = 8;
+            _root.style.paddingRight = 8;
 
+            _title = MakeLabel();
+            _title.AddToClassList("text--bold");
+            _root.Add(_title);
 
-            _title = _uiFactory.CreateLabel();
-            _growthDailyInfo = _uiFactory.CreateLabel();
-            _growthAvgInfo = _uiFactory.CreateLabel();
-            _yieldAvgInfo = _uiFactory.CreateLabel();
-
+            _growthElement = new VisualElement();
+            _growthDailyInfo = MakeLabel();
+            _growthAvgInfo = MakeLabel();
             _growthElement.Add(_growthDailyInfo);
             _growthElement.Add(_growthAvgInfo);
+            _root.Add(_growthElement);
 
+            _yieldElement = new VisualElement();
+            _yieldAvgInfo = MakeLabel();
             _yieldElement.Add(_yieldAvgInfo);
+            _root.Add(_yieldElement);
 
-            _root = _uiFactory.CreateCenteredPanelFragmentBuilder()
-                                .AddComponent(_title)
-                                .AddComponent(_growthElement)
-                                .AddComponent(_yieldElement)
-                                .BuildAndInitialize();
-
-            _root.ToggleDisplayStyle(visible: false);
+            _root.ToggleDisplayStyle(false);
             return _root;
         }
 
         public void ShowFragment(BaseComponent entity)
         {
-            this._growthFertilizationTreeComponent =     entity.GetComponentFast<TreeComponentSpec>();
-             
-            if (this._growthFertilizationTreeComponent != null)
+            _treeComponent = entity.GetComponent<TreeComponent>();
+
+            if (_treeComponent == null)
             {
-                if (this._growthFertilizationAreaService != null)
-                {
-                    BlockObject blockObject = new();
-                    this._growthFertilizationTreeComponent.TryGetComponentFast<BlockObject>(out blockObject);
-                    this._growthFertilizationTreeComponent.TryGetComponentFast<Growable>(out Growable growable);
-                    this._growthFertilizationTreeComponent.TryGetComponentFast<GatherableYieldGrower>(out GatherableYieldGrower yieldGrower);
-
-                    if ((blockObject != null)
-                        && (growable != null))
-                    {
-                        if( this._growthFertilizationAreaService.CheckCoordinateFertilizationArea(blockObject.Coordinates) )
-                        {
-                            this._growableCoordinates = blockObject.Coordinates;
-
-                            _title.text = _loc.T(TitleLocKey);
-
-                            if (!growable.IsGrown)
-                            {
-                                _growthElement.ToggleDisplayStyle(true);
-                                _yieldElement.ToggleDisplayStyle(false);
-
-                                _growthDailyInfo.text = _loc.T(GrowthDailyLocKey) + " " + (this._growthFertilizationAreaService.GetGrowthProgessDaily(blockObject.Coordinates).ToString("0.0") + " %");
-
-                                // calculate average growth reduction
-                                float growthTimeDecrease = (growable.GrowthTimeInDays * this._growthFertilizationAreaService.GetGrowthFactor() * this._growthFertilizationAreaService.GetGrowthProgessAverage(blockObject.Coordinates));
-
-                                _growthAvgInfo.text = (_loc.T(GrowthAvgLocKey) + " " + growthTimeDecrease.ToString("0.0") + " " + _loc.T(UnitDayLocKey));
-                            }
-                            else
-                            {
-                                if (yieldGrower != null)
-                                {
-                                    this._growthFertilizationTreeComponent.TryGetComponentFast<Gatherable>(out Gatherable gatherable);
-
-                                    float yieldTimeDecrease = (gatherable.YieldGrowthTimeInDays * this._growthFertilizationAreaService.GetYieldFactor() * (this._growthFertilizationAreaService.GetYieldProgessAverage(blockObject.Coordinates)/100.0f));
-
-                                    _yieldAvgInfo.text = (_loc.T(YieldAvgLocKey) + " " + yieldTimeDecrease.ToString("0.0") + " " + _loc.T(UnitDayLocKey));
-
-                                    _yieldElement.ToggleDisplayStyle(true);
-                                }
-
-                                _growthElement.ToggleDisplayStyle(false);
-                            }
-
-                            _root.ToggleDisplayStyle((bool)(Object)this._growthFertilizationTreeComponent);
-                            return;
-                        }
-                        else
-                        {
-                            this._growableCoordinates = Vector3Int.zero;
-                        }
-                    }
-                }
+                _root.ToggleDisplayStyle(false);
+                return;
             }
-            _root.ToggleDisplayStyle(false);
+
+            _treeComponent.TryGetComponent<BlockObject>(out var blockObject);
+            _treeComponent.TryGetComponent<Growable>(out var growable);
+            _treeComponent.TryGetComponent<GatherableYieldGrower>(out var yieldGrower);
+
+            if (blockObject == null || growable == null
+                || !_areaService.CheckCoordinateFertilizationArea(blockObject.Coordinates))
+            {
+                _coordinates = Vector3Int.zero;
+                _root.ToggleDisplayStyle(false);
+                return;
+            }
+
+            _coordinates = blockObject.Coordinates;
+            _title.text = _loc.T(TitleLocKey);
+
+            if (!growable.IsGrown)
+            {
+                _growthElement.ToggleDisplayStyle(true);
+                _yieldElement.ToggleDisplayStyle(false);
+
+                _growthDailyInfo.text = _loc.T(GrowthDailyLocKey) + " "
+                    + _areaService.GetGrowthProgessDaily(_coordinates).ToString("0.0") + " %";
+
+                float decrease = growable.GrowthTimeInDays
+                    * _areaService.GetGrowthFactor()
+                    * _areaService.GetGrowthProgessAverage(_coordinates);
+                _growthAvgInfo.text = _loc.T(GrowthAvgLocKey) + " "
+                    + decrease.ToString("0.0") + " " + _loc.T(UnitDayLocKey);
+            }
+            else if (yieldGrower != null)
+            {
+                _treeComponent.TryGetComponent<Gatherable>(out var gatherable);
+                if (gatherable != null)
+                {
+                    float yieldDecrease = gatherable.YieldGrowthTimeInDays
+                        * _areaService.GetYieldFactor()
+                        * (_areaService.GetYieldProgessAverage(_coordinates) / 100f);
+                    _yieldAvgInfo.text = _loc.T(YieldAvgLocKey) + " "
+                        + yieldDecrease.ToString("0.0") + " " + _loc.T(UnitDayLocKey);
+                    _yieldElement.ToggleDisplayStyle(true);
+                }
+                _growthElement.ToggleDisplayStyle(false);
+            }
+            else
+            {
+                _root.ToggleDisplayStyle(false);
+                return;
+            }
+
+            _root.ToggleDisplayStyle(true);
         }
 
         public void ClearFragment()
         {
-            _root.ToggleDisplayStyle(visible: false);
+            _root.ToggleDisplayStyle(false);
+            _treeComponent = null;
+            _coordinates = Vector3Int.zero;
         }
 
         public void UpdateFragment()
         {
-            if ((this._growthDailyInfo != null)
-                && (this._growthFertilizationTreeComponent != null)
-                && (this._growthFertilizationAreaService != null)
-                && (this._growableCoordinates != Vector3Int.zero)
-                )
-            {
-                this._growthDailyInfo.text = _loc.T(GrowthDailyLocKey) + " " + (this._growthFertilizationAreaService.GetGrowthProgessDaily(this._growableCoordinates).ToString("0.0") + " %");
-                _root.ToggleDisplayStyle((bool)(Object)this._growthFertilizationTreeComponent);
-            }
+            if (_treeComponent == null || _coordinates == Vector3Int.zero) return;
+            _growthDailyInfo.text = _loc.T(GrowthDailyLocKey) + " "
+                + _areaService.GetGrowthProgessDaily(_coordinates).ToString("0.0") + " %";
+        }
+
+        private static Label MakeLabel()
+        {
+            var label = new Label();
+            label.AddToClassList("game-text-normal");
+            label.style.marginTop = 2;
+            return label;
         }
     }
 }

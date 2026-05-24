@@ -19,17 +19,17 @@ namespace Cordial.Mods.BoosterJuice.Scripts
 
         public void Awake()
         {
-            this._growthFertilizationBuilding = this.GetComponentFast<GrowthFertilizationBuilding>();
-            this._workplace = this.GetComponentFast<Workplace>();
-            this._districtBuilding = this.GetComponentFast<DistrictBuilding>();
-            this._lackOfResourcesStatus = this.GetComponentFast<LackOfResourcesStatus>();
-            this._noHaulingPostStatus = this.GetComponentFast<NoHaulingPostStatus>();
+            this._growthFertilizationBuilding = this.GetComponent<GrowthFertilizationBuilding>();
+            this._workplace = this.GetComponent<Workplace>();
+            this._districtBuilding = this.GetComponent<DistrictBuilding>();
+            this._lackOfResourcesStatus = this.GetComponent<LackOfResourcesStatus>();
+            this._noHaulingPostStatus = this.GetComponent<NoHaulingPostStatus>();
         }
 
         public void OnEnterFinishedState()
         {
             this._lackOfResourcesStatus.Initialize(new Func<bool>(this.CheckIfSupplyIsUnavailable));
-            if ((bool)(UnityEngine.Object)this._workplace)
+            if (null != this._workplace)
                 return;
             this._noHaulingPostStatus.Initialize((Func<bool>)(() => true));
         }
@@ -37,14 +37,18 @@ namespace Cordial.Mods.BoosterJuice.Scripts
         public void OnExitFinishedState()
         {
             this._lackOfResourcesStatus.Disable();
-            if ((bool)(UnityEngine.Object)this._workplace)
+            if (null != this._workplace)
                 return;
             this._noHaulingPostStatus.Disable();
         }
 
         private bool CheckIfSupplyIsUnavailable()
         {
-            return (!(bool)(UnityEngine.Object)this._workplace || this._workplace.NumberOfAssignedWorkers != 0) && (bool)(UnityEngine.Object)this._districtBuilding.District && (double)this._growthFertilizationBuilding.SupplyAmount <= 0.0 && this._districtBuilding.District.GetComponentFast<DistrictInventoryRegistry>().ActiveInventoriesWithStock(this._growthFertilizationBuilding.Supply).Count == 0;
+            return (this._workplace == null || this._workplace.NumberOfAssignedWorkers != 0)
+                && this._districtBuilding.District != null
+                && this._growthFertilizationBuilding.SupplyAmount <= 0.0
+                && this._districtBuilding.District.GetComponent<DistrictInventoryRegistry>()
+                       .ActiveInventoriesWithStock(this._growthFertilizationBuilding.Supply).Count == 0;
         }
     }
 }

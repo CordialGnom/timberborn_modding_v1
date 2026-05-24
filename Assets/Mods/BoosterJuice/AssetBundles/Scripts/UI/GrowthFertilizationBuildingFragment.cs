@@ -1,158 +1,131 @@
-﻿// Based on the: 
-// Timberborn Mod: Automation
-// Author: igor.zavoychinskiy@gmail.com
-// License: Public Domain
-
-using TimberApi.UIBuilderSystem;
-using TimberApi.UIPresets.Toggles;
-using Timberborn.BaseComponentSystem;
+﻿using Timberborn.BaseComponentSystem;
 using Timberborn.CoreUI;
 using Timberborn.EntityPanelSystem;
 using Timberborn.Localization;
-using UnityEngine;
 using UnityEngine.UIElements;
-using TimberApi.UIPresets.Labels;
 
 namespace Cordial.Mods.BoosterJuice.Scripts.UI
 {
     sealed class GrowthFertilizationBuildingFragment : IEntityPanelFragment
     {
-        private readonly UIBuilder _uiBuilder;
-
-        private GrowthFertilizationBuilding _growthFertilizationBuilding;
-
-        private readonly VisualElement _root = new();
-        private Label _growthStateText = new();
-        private Label _consumptionText = new();
-        private Label _capacityStateText = new();
-        private Label _yieldStateText = new();
-        private Toggle _yieldFertilize = new();
-
-        private VisualElement _panelFragment = new();
-
-        // localizations
-        private readonly ILoc _loc;
         private static readonly string ConsumptionLocKey = "Cordial.Building.FertilizerDump.Consumption";
         private static readonly string TreeCountLocKey = "Cordial.Building.FertilizerDump.TreeCount";
         private static readonly string FertilizerNameLocKey = "Cordial.Good.Fertilizer.DisplayName";
         private static readonly string UnitPerHourLocKey = "Cordial.Unit.PerHour";
+        private static readonly string FertilizeYieldLocKey = "Cordial.Building.FertilizerDump.FertilizeYield";
 
-        public GrowthFertilizationBuildingFragment( UIBuilder uiBuilder,
-                                                    ILoc loc)
+        private readonly ILoc _loc;
+
+        private GrowthFertilizationBuilding _building;
+
+        private VisualElement _root;
+        private Label _growthStateText;
+        private Label _consumptionText;
+        private Label _capacityStateText;
+        private Toggle _yieldFertilize;
+
+        public GrowthFertilizationBuildingFragment(ILoc loc)
         {
-            _uiBuilder = uiBuilder;
             _loc = loc;
         }
 
         public VisualElement InitializeFragment()
         {
-            _growthStateText =  _uiBuilder.Create<GameLabel>()
-                                    .Small()
-                                    .Build();
+            _root = new VisualElement();
 
-            _consumptionText =  _uiBuilder.Create<GameLabel>()
-                                    .Small()
-                                    .Build();
+            var fragment = new NineSliceVisualElement();
+            fragment.AddToClassList("entity-sub-panel");
+            fragment.AddToClassList("bg-sub-box--green");
+            fragment.style.paddingTop = 6;
+            fragment.style.paddingBottom = 6;
+            fragment.style.paddingLeft = 8;
+            fragment.style.paddingRight = 8;
+            _root.Add(fragment);
 
-            _capacityStateText = _uiBuilder.Create<GameLabel>()
-                                    .Small()
-                                    .Build();
+            // Yield fertilize toggle
+            _yieldFertilize = new Toggle(_loc.T(FertilizeYieldLocKey));
+            _yieldFertilize.AddToClassList("settings-element");
+            _yieldFertilize.AddToClassList("settings-text");
+            _yieldFertilize.AddToClassList("settings-toggle");
+            _yieldFertilize.RegisterValueChangedCallback(evt =>
+            {
+                if (_building != null)
+                    _building.FertilizeYieldActive = evt.newValue;
+            });
+            fragment.Add(_yieldFertilize);
 
-            _yieldFertilize = _uiBuilder.Create<GameToggle>()
-                                    .SetName("FertilizeYield")
-                                    .SetLocKey("Cordial.Building.FertilizerDump.FertilizeYield")
-                                    .Build();
+            // Status labels
+            _growthStateText = MakeLabel();
+            _capacityStateText = MakeLabel();
+            _consumptionText = MakeLabel();
 
+            fragment.Add(_growthStateText);
+            fragment.Add(_capacityStateText);
+            fragment.Add(_consumptionText);
 
-            _root.Add(CreateCenteredPanelFragmentBuilder()
-                            .AddComponent(_yieldFertilize)
-                            .BuildAndInitialize());
-
-
-            _panelFragment =    CreateCenteredPanelFragmentBuilder()
-                                    .BuildAndInitialize();
-
-            _panelFragment.Add(_growthStateText);
-            _panelFragment.Add(_capacityStateText);
-            _panelFragment.Add(_consumptionText);
-
-            _root.Add(_panelFragment);
-
-            _root.ToggleDisplayStyle(visible: false);
-
-            // register event
-            _root.Q<Toggle>("FertilizeYield").RegisterValueChangedCallback(value => ToggleValueChange(value.newValue));
-
+            _root.ToggleDisplayStyle(false);
             return _root;
         }
 
         public void ShowFragment(BaseComponent entity)
         {
-            this._growthFertilizationBuilding = entity.GetComponentFast<GrowthFertilizationBuilding>();
+            _building = entity.GetComponent<GrowthFertilizationBuilding>();
+
+            if (_building == null)
+            {
+                _root.ToggleDisplayStyle(false);
+                return;
+            }
 
             UpdateGrowthState();
             UpdateInventoryState();
             UpdateConsumptionState();
-            UpdateToggleState();
+            _yieldFertilize.SetValueWithoutNotify(_building.FertilizeYieldActive);
 
-            _root.ToggleDisplayStyle((bool)(Object)this._growthFertilizationBuilding);
+            _root.ToggleDisplayStyle(true);
         }
 
         public void ClearFragment()
         {
-            _root.ToggleDisplayStyle(visible: false);
+            _root.ToggleDisplayStyle(false);
+            _building = null;
         }
 
         public void UpdateFragment()
         {
-            if (null != _growthFertilizationBuilding)
-            {
-                this.UpdateGrowthState();
-                this.UpdateConsumptionState();
-                this.UpdateInventoryState();
-                _root.ToggleDisplayStyle((bool)(Object)this._growthFertilizationBuilding);
-            }
+            if (_building == null) return;
+            UpdateGrowthState();
+            UpdateConsumptionState();
+            UpdateInventoryState();
         }
 
         private void UpdateInventoryState()
         {
-            if (!(bool)(Object)this._growthFertilizationBuilding)
-                return;
-            this._capacityStateText.text = _loc.T(FertilizerNameLocKey) + ": " + (this._growthFertilizationBuilding.SupplyLeft) + "/" + (this._growthFertilizationBuilding.Capacity);
+            _capacityStateText.text = _loc.T(FertilizerNameLocKey)
+                + ": " + _building.SupplyLeft
+                + "/" + _building.Capacity;
         }
+
         private void UpdateConsumptionState()
         {
-            if (!(bool)(Object)this._growthFertilizationBuilding)
-                return;
-            this._consumptionText.text = _loc.T(ConsumptionLocKey) + " " + _growthFertilizationBuilding.ConsumptionPerHour.ToString("0.0") + _loc.T(UnitPerHourLocKey);
+            _consumptionText.text = _loc.T(ConsumptionLocKey) + " "
+                + _building.ConsumptionPerHour.ToString("0.0")
+                + _loc.T(UnitPerHourLocKey);
         }
 
         private void UpdateGrowthState()
         {
-            if (!(bool)(Object)this._growthFertilizationBuilding)
-                return;
-            this._growthStateText.text = _loc.T(TreeCountLocKey) + ": " + (this._growthFertilizationBuilding.TreesGrowCount) + "/" + (this._growthFertilizationBuilding.TreesTotalCount);
+            _growthStateText.text = _loc.T(TreeCountLocKey)
+                + ": " + _building.TreesGrowCount
+                + "/" + _building.TreesTotalCount;
         }
 
-        private void UpdateToggleState()
+        private static Label MakeLabel()
         {
-            if (!(bool)(Object)this._growthFertilizationBuilding)
-                return;
-            _root.Q<Toggle>(this._yieldFertilize.name).SetValueWithoutNotify(this._growthFertilizationBuilding.FertilizeYieldActive);
-        }
-
-        private void ToggleValueChange(bool value)
-        {
-            // instead of throwing a new event, modify available building status
-            this._growthFertilizationBuilding.FertilizeYieldActive = value;
-        }
-
-        public PanelFragment CreateCenteredPanelFragmentBuilder()
-        {
-            return _uiBuilder.Create<PanelFragment>()
-                .SetFlexDirection(FlexDirection.Column)
-                .SetWidth(new Length(100f, LengthUnit.Percent))
-                .SetJustifyContent(Justify.Center);
+            var label = new Label();
+            label.AddToClassList("game-text-normal");
+            label.style.marginTop = 2;
+            return label;
         }
     }
 }

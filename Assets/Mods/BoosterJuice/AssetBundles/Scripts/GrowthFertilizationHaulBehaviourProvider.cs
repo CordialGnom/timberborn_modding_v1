@@ -1,7 +1,7 @@
 ﻿using Bindito.Core;
 using System.Collections.Generic;
 using Timberborn.BaseComponentSystem;
-using Timberborn.BuildingsBlocking;
+using Timberborn.BlockingSystem;
 using Timberborn.Emptying;
 using Timberborn.Hauling;
 using Timberborn.InventorySystem;
@@ -16,7 +16,7 @@ namespace Cordial.Mods.BoosterJuice.Scripts
         private GrowthFertilizationBuilding _growthFertilizationBuilding;
         private InventoryFillCalculator _inventoryFillCalculator;
         private Inventories _inventories;
-        private BlockableBuilding _blockableBuilding;
+        private BlockableObject _blockableObject;
         private FillInputWorkplaceBehavior _fillInputWorkplaceBehavior;
         private EmptyOutputWorkplaceBehavior _emptyOutputWorkplaceBehavior;
 
@@ -28,16 +28,16 @@ namespace Cordial.Mods.BoosterJuice.Scripts
 
         public void Awake()
         {
-            this._growthFertilizationBuilding = this.GetComponentFast<GrowthFertilizationBuilding>();
-            this._blockableBuilding = this.GetComponentFast<BlockableBuilding>();
-            this._inventories = this.GetComponentFast<Inventories>();
-            this._fillInputWorkplaceBehavior = this.GetComponentFast<FillInputWorkplaceBehavior>();
-            this._emptyOutputWorkplaceBehavior = this.GetComponentFast<EmptyOutputWorkplaceBehavior>();
+            this._growthFertilizationBuilding = this.GetComponent<GrowthFertilizationBuilding>();
+            this._blockableObject = this.GetComponent<BlockableObject>();
+            this._inventories = this.GetComponent<Inventories>();
+            this._fillInputWorkplaceBehavior = this.GetComponent<FillInputWorkplaceBehavior>();
+            this._emptyOutputWorkplaceBehavior = this.GetComponent<EmptyOutputWorkplaceBehavior>();
         }
 
         public void GetWeightedBehaviors(IList<WeightedBehavior> weightedBehaviors)
         {
-            if (!this._growthFertilizationBuilding || !this._blockableBuilding.IsUnblocked)
+            if (!this._growthFertilizationBuilding || !this._blockableObject.IsUnblocked)
                 return;
 
             foreach (Inventory enabledInventory in this._inventories.EnabledInventories)

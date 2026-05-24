@@ -11,31 +11,30 @@ namespace Cordial.Mods.BoosterJuice.Scripts.UI
             containerDefinition.Bind<GrowthFertilizationAreaService>().AsSingleton();
             containerDefinition.Bind<GrowthFertilizationBuildingFragment>().AsSingleton();
             containerDefinition.Bind<GrowthFertilizationGrowableFragment>().AsSingleton();
-            containerDefinition.Bind<UiFactory>().AsSingleton();
-            containerDefinition.Bind<PanelFragment>().AsSingleton();
-            containerDefinition.MultiBind<EntityPanelModule>().ToProvider<GrowthFertilizationUIConfigurator.EntityPanelModuleProvider>().AsSingleton();
+            containerDefinition.MultiBind<EntityPanelModule>()
+                .ToProvider<EntityPanelModuleProvider>().AsSingleton();
         }
 
         private class EntityPanelModuleProvider : IProvider<EntityPanelModule>
         {
-            readonly GrowthFertilizationBuildingFragment _growthFertilizationBuildingFragment;
-            readonly GrowthFertilizationGrowableFragment _growthFertilizationGrowableFragment;
+            private readonly GrowthFertilizationBuildingFragment _buildingFragment;
+            private readonly GrowthFertilizationGrowableFragment _growableFragment;
 
-            public EntityPanelModuleProvider(   GrowthFertilizationBuildingFragment growthFertilizationBuildingFragment,
-                                                GrowthFertilizationGrowableFragment growthFertilizationGrowableFragment)
+            public EntityPanelModuleProvider(
+                GrowthFertilizationBuildingFragment buildingFragment,
+                GrowthFertilizationGrowableFragment growableFragment)
             {
-                _growthFertilizationBuildingFragment = growthFertilizationBuildingFragment;
-                _growthFertilizationGrowableFragment = growthFertilizationGrowableFragment;
+                _buildingFragment = buildingFragment;
+                _growableFragment = growableFragment;
             }
 
             public EntityPanelModule Get()
             {
                 var builder = new EntityPanelModule.Builder();
-                builder.AddBottomFragment(_growthFertilizationBuildingFragment);
-                builder.AddBottomFragment(_growthFertilizationGrowableFragment);
+                builder.AddBottomFragment(_buildingFragment);
+                builder.AddBottomFragment(_growableFragment);
                 return builder.Build();
             }
         }
     }
-
 }

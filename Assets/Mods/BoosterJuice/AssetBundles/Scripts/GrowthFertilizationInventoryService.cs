@@ -1,7 +1,7 @@
 ﻿using Timberborn.Common;
 using Timberborn.Goods;
 using Timberborn.InventorySystem;
-using Timberborn.TemplateSystem;
+using Timberborn.TemplateInstantiation;
 using UnityEngine;
 
 namespace Cordial.Mods.BoosterJuice.Scripts
