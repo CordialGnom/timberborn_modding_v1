@@ -35,6 +35,7 @@
     "LimitedCapacityUnfinished": false,
     "CapacityUnfinished": 0
   },
+  "WorkshopSpec": {},
   "TemplateSpec": {
     "TemplateName": "CordialFertilizerDump.IronTeeth",
     "BackwardCompatibleTemplateNames": [],
@@ -85,6 +86,8 @@
     "FlavorDescriptionLocKey": "Cordial.Building.FertilizerDump.FlavorDescription",
     "Icon": "Buildings/Wood/CordialFertilizerDump/FertilizerDumpIcon"
   },
+  "WorkplaceSlotManagerSpec": {},
+  "WorkplaceIlluminatorSpec": {},
   "TransformSlotInitializerSpec": {
     "Slots": [
       {
@@ -106,10 +109,11 @@
     "EdgeGroups": [],
     "UnblockedCoordinates": []
   },
+  "WorkshopWorkerHiderSpec": {},
   "ConstructionSiteProgressVisualizerSpec": {
     "ProgressThresholds": [ 0.0 ]
   },
-  "GrowthFertilizationBuilding": {
+  "GrowthFertilizationBuildingSpec": {
     "GrowthFactor": 0.5,
     "GrowthConsumptionFactor": 0.76,
     "YieldFactor": 0.5,

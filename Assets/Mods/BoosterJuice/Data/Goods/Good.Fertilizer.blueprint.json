@@ -11,7 +11,12 @@
   "VisibleContainer": {
     "Value": "Barrel"
   },
-  "ContainerColor": "#95006d",
+  "ContainerColor": {
+  "r": 0.584,
+  "g": 0.0,
+  "b": 0.427,
+  "a": 1.0
+	},
   "ContainerMaterial": "Materials/Goods/Fertilizer",
   "CarryingAnimation": "CarryInHands",
   "Weight": 2,
