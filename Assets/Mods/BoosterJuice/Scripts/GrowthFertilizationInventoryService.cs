@@ -20,10 +20,6 @@ namespace Cordial.Mods.BoosterJuice.Scripts
 
         public void Initialize(GrowthFertilizationBuildingSpec subject, Inventory decorator)
         {
-            Debug.Log("InventoryService Initialize - subject null=" + (subject == null)
-          + ", supply=" + (subject?.Supply ?? "NULL")
-          + ", capacity=" + subject?.Capacity);
-
             // subject IS the spec — no GetComponent needed
             var inventoryInitializer = _inventoryInitializerFactory.Create(
                 decorator, subject.Capacity, "GrowthFertilizationBuilding");
