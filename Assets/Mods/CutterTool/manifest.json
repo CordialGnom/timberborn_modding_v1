@@ -1,0 +1,7 @@
+{
+  "Name": "Cutter Tool",
+  "Version": "1.0.0.0",
+  "Id": "Cordial.Mods.CutterTool",
+  "MinimumGameVersion": "1.0.13.1",
+  "Description": "A tool to configure tree cutting."
+}
