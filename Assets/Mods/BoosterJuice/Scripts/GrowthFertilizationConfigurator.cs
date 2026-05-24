@@ -1,61 +1,91 @@
 ﻿using Bindito.Core;
+using Timberborn.EntityPanelSystem;
 using Timberborn.Emptying;
 using Timberborn.Hauling;
 using Timberborn.InventorySystem;
-using Timberborn.LaborSystem;
 using Timberborn.TemplateInstantiation;
 using Timberborn.Workshops;
 using Timberborn.WorkSystem;
+using Cordial.Mods.BoosterJuice.Scripts.UI;
+using Timberborn.LaborSystem;
 
 namespace Cordial.Mods.BoosterJuice.Scripts
-  
 {
     [Context("Game")]
     public class GrowthFertilizationConfigurator : IConfigurator
     {
         public void Configure(IContainerDefinition containerDefinition)
         {
-            containerDefinition.Bind<GrowthFertilizationInventoryService>().AsSingleton();
-            containerDefinition.MultiBind<TemplateModule>().ToProvider<GrowthFertilizationConfigurator.TemplateModuleProvider>().AsSingleton();
+            // Building components
+            containerDefinition.Bind<GrowthFertilizationAreaService>().AsSingleton();
+            containerDefinition.Bind<GrowthFertilizationBuilding>().AsTransient();
+            containerDefinition.Bind<GrowthFertilizationWorkplaceBehaviour>().AsTransient();
+            containerDefinition.Bind<GrowthFertilizationHaulBehaviourProvider>().AsTransient();
+            containerDefinition.Bind<GrowthFertilizationStatusService>().AsTransient();
+
+            // UI fragments
+            containerDefinition.Bind<GrowthFertilizationBuildingFragment>().AsSingleton();
+            containerDefinition.Bind<GrowthFertilizationGrowableFragment>().AsSingleton();
+            containerDefinition.MultiBind<EntityPanelModule>()
+                .ToProvider<EntityPanelModuleProvider>().AsSingleton();
+
+            // Template module
+            containerDefinition.MultiBind<TemplateModule>()
+                .ToProvider<TemplateModuleProvider>().AsSingleton();
+        }
+
+        private class EntityPanelModuleProvider : IProvider<EntityPanelModule>
+        {
+            private readonly GrowthFertilizationBuildingFragment _buildingFragment;
+            private readonly GrowthFertilizationGrowableFragment _growableFragment;
+
+            public EntityPanelModuleProvider(
+                GrowthFertilizationBuildingFragment buildingFragment,
+                GrowthFertilizationGrowableFragment growableFragment)
+            {
+                _buildingFragment = buildingFragment;
+                _growableFragment = growableFragment;
+            }
+
+            public EntityPanelModule Get()
+            {
+                var builder = new EntityPanelModule.Builder();
+                builder.AddBottomFragment(_buildingFragment);
+                builder.AddBottomFragment(_growableFragment);
+                return builder.Build();
+            }
         }
 
         private class TemplateModuleProvider : IProvider<TemplateModule>
         {
-            private readonly GrowthFertilizationInventoryService _growthFertilizationInventoryService;
+            private readonly InventoryInitializerFactory _inventoryInitializerFactory;
 
-            public TemplateModuleProvider(
-              GrowthFertilizationInventoryService growthFertilizationInventoryService)
+            public TemplateModuleProvider(InventoryInitializerFactory inventoryInitializerFactory)
             {
-                this._growthFertilizationInventoryService = growthFertilizationInventoryService;
+                _inventoryInitializerFactory = inventoryInitializerFactory;
             }
 
             public TemplateModule Get()
             {
-                TemplateModule.Builder builder = new TemplateModule.Builder();
-                builder.AddDecorator<GrowthFertilizationBuilding, AutoEmptiable>();
-                builder.AddDecorator<GrowthFertilizationBuilding, Emptiable>();
-                builder.AddDecorator<GrowthFertilizationBuilding, HaulCandidate>();
-                builder.AddDecorator<GrowthFertilizationBuilding, FillInputHaulBehaviorProvider>();
-                builder.AddDecorator<GrowthFertilizationBuilding, GrowthFertilizationStatusService>();
-                builder.AddDecorator<GrowthFertilizationBuilding, GrowthFertilizationHaulBehaviourProvider>();
-                builder.AddDecorator<GrowthFertilizationBuilding, WorkshopProductivityCounter>();
+                var inventoryService = new GrowthFertilizationInventoryService(_inventoryInitializerFactory);
+                var builder = new TemplateModule.Builder();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationBuilding>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, AutoEmptiable>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, Emptiable>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, HaulCandidate>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, FillInputHaulBehaviorProvider>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationStatusService>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationHaulBehaviourProvider>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, WorkshopProductivityCounter>();
                 builder.AddDecorator<Worker, WorkplaceWorkStarter>();
                 builder.AddDecorator<GrowthFertilizationStatusService, LackOfResourcesStatus>();
                 builder.AddDecorator<GrowthFertilizationStatusService, NoHaulingPostStatus>();
-                builder.AddDedicatedDecorator<GrowthFertilizationBuilding, Inventory>((IDedicatedDecoratorInitializer<GrowthFertilizationBuilding, Inventory>)this._growthFertilizationInventoryService);
-                GrowthFertilizationConfigurator.TemplateModuleProvider.InitializeBehaviors(builder);
+                builder.AddDedicatedDecorator<GrowthFertilizationBuildingSpec, Inventory>(inventoryService);
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationWorkplaceBehaviour>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, FillInputWorkplaceBehavior>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, LaborWorkplaceBehavior>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, WaitInsideIdlyWorkplaceBehavior>();
                 return builder.Build();
-            }
-
-            private static void InitializeBehaviors(TemplateModule.Builder builder)
-            {
-                builder.AddDecorator<GrowthFertilizationBuilding, GrowthFertilizationWorkplaceBehaviour>();
-                builder.AddDecorator<GrowthFertilizationBuilding, EmptyOutputWorkplaceBehavior>();
-                builder.AddDecorator<GrowthFertilizationBuilding, EmptyInventoriesWorkplaceBehavior>();
-                builder.AddDecorator<GrowthFertilizationBuilding, FillInputWorkplaceBehavior>();
-                builder.AddDecorator<GrowthFertilizationBuilding, RemoveUnwantedStockWorkplaceBehavior>();
-                builder.AddDecorator<GrowthFertilizationBuilding, LaborWorkplaceBehavior>();
-                builder.AddDecorator<GrowthFertilizationBuilding, WaitInsideIdlyWorkplaceBehavior>();
             }
         }
     }

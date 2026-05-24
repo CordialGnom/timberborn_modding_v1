@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Cordial.Mods.BoosterJuice.Scripts
 {
     internal class GrowthFertilizationInventoryService :
-    IDedicatedDecoratorInitializer<GrowthFertilizationBuilding, Inventory>
+    IDedicatedDecoratorInitializer<GrowthFertilizationBuildingSpec, Inventory>
     {
         private static readonly string InventoryComponentName = "GrowthFertilizationBuilding";
         private readonly InventoryInitializerFactory _inventoryInitializerFactory;
@@ -18,13 +18,26 @@ namespace Cordial.Mods.BoosterJuice.Scripts
             this._inventoryInitializerFactory = inventoryInitializerFactory;
         }
 
-        public void Initialize(GrowthFertilizationBuilding subject, Inventory decorator)
+        public void Initialize(GrowthFertilizationBuildingSpec subject, Inventory decorator)
         {
-            InventoryInitializer inventoryInitializer = this._inventoryInitializerFactory.Create(decorator, subject.Capacity, GrowthFertilizationInventoryService.InventoryComponentName);
-            inventoryInitializer.AddAllowedGoods(Enumerables.One<StorableGoodAmount>(new StorableGoodAmount(StorableGood.CreateAsGivable(subject.Supply), subject.Capacity)));
+            Debug.Log("InventoryService Initialize - subject null=" + (subject == null)
+          + ", supply=" + (subject?.Supply ?? "NULL")
+          + ", capacity=" + subject?.Capacity);
+
+            // subject IS the spec — no GetComponent needed
+            var inventoryInitializer = _inventoryInitializerFactory.Create(
+                decorator, subject.Capacity, "GrowthFertilizationBuilding");
+            inventoryInitializer.AddAllowedGoods(
+                Enumerables.One<StorableGoodAmount>(
+                    new StorableGoodAmount(
+                        StorableGood.CreateAsGivable(subject.Supply), subject.Capacity)));
             inventoryInitializer.HasPublicOutput();
             inventoryInitializer.Initialize();
-            subject.InitializeInventory(decorator);
+
+            // Now get the building component to call InitializeInventory
+            // At this point GrowthFertilizationBuilding should be available
+            var building = decorator.GetComponent<GrowthFertilizationBuilding>();
+            building.InitializeInventory(decorator);
         }
     }
 }

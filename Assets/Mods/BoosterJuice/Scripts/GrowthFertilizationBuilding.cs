@@ -31,6 +31,7 @@ using Timberborn.EntitySystem;
 namespace Cordial.Mods.BoosterJuice.Scripts {
   public class GrowthFertilizationBuilding : BaseComponent, 
         IBuildingWithRange,
+        IAwakableComponent,
         IFinishedStateListener,
         IPersistentEntity
     {
@@ -173,7 +174,7 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
         }
         public void InitializeInventory(Inventory inventory)
         {
-            Asserts.FieldIsNull<GrowthFertilizationBuilding>(this, (object)this.Inventory, "Inventory");
+            Asserts.FieldIsNull<GrowthFertilizationBuilding>(this, this.Inventory, "Inventory");
             this.Inventory = inventory;
         }
 

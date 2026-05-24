@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Cordial.Mods.BoosterJuice.Scripts
 {
-    public class GrowthFertilizationHaulBehaviourProvider : BaseComponent, IHaulBehaviorProvider
+    public class GrowthFertilizationHaulBehaviourProvider : BaseComponent, IAwakableComponent, IHaulBehaviorProvider
     {
         private GrowthFertilizationBuilding _growthFertilizationBuilding;
         private InventoryFillCalculator _inventoryFillCalculator;

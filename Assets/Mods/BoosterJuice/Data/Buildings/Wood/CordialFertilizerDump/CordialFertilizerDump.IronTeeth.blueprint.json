@@ -19,6 +19,15 @@
     "ConstructionModeModel": "Finished",
     "UndergroundModelDepth": 0
   },
+  "GrowthFertilizationBuildingSpec": {
+    "GrowthFactor": 0.5,
+    "GrowthConsumptionFactor": 0.76,
+    "YieldFactor": 0.5,
+    "YieldConsumptionFactor": 0.74,
+    "GrowthFertilizationRadius": 8,
+    "Capacity": 50,
+    "Supply": "Fertilizer"
+  },
   "WorkplaceSpec": {
     "MaxWorkers": 1,
     "DefaultWorkers": 1,
@@ -107,20 +116,12 @@
     "NoAutoWalls": false,
     "GenerateFloorsOnStackable": false,
     "EdgeGroups": [],
-    "UnblockedCoordinates": []
+    "UnblockedCoordinates": [],
+    "BlockedEdges": []
   },
   "WorkshopWorkerHiderSpec": {},
   "ConstructionSiteProgressVisualizerSpec": {
     "ProgressThresholds": [ 0.0 ]
-  },
-  "GrowthFertilizationBuildingSpec": {
-    "GrowthFactor": 0.5,
-    "GrowthConsumptionFactor": 0.76,
-    "YieldFactor": 0.5,
-    "YieldConsumptionFactor": 0.74,
-    "GrowthFertilizationRadius": 8,
-    "Capacity": 50,
-    "Supply": "Fertilizer"
   },
   "Children": {
     "#Finished": {

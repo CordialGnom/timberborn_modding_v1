@@ -9,7 +9,7 @@ using Timberborn.WorkSystem;
 
 namespace Cordial.Mods.BoosterJuice.Scripts
 {
-    internal class GrowthFertilizationStatusService : BaseComponent, IFinishedStateListener
+    internal class GrowthFertilizationStatusService : BaseComponent, IAwakableComponent, IFinishedStateListener
     {
         private GrowthFertilizationBuilding _growthFertilizationBuilding;
         private Workplace _workplace;
