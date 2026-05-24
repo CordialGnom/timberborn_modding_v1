@@ -1,6 +1,0 @@
-{
-  "FactionSpec": {
-    "Id": "IronTeeth",
-	"Goods#append": [ "Fertilizer" ]
-  }
-}

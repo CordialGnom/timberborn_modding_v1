@@ -1,0 +1,8 @@
+{
+  "MaterialCollectionSpec": {
+    "CollectionId": "Common",
+	"Materials#append": [
+		"Materials/Goods/Fertilizer"
+	]
+  }
+}

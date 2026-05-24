@@ -1,8 +1,0 @@
-{
-  "MaterialGroupSpec": {
-    "Id": "Common",
-	"Paths#append": [
-		"Materials/Cordial/Goods/Fertilizer"
-	]
-  }
-}
