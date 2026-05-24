@@ -35,25 +35,12 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
         IPersistentEntity
     {
 
-        [SerializeField]
         private float _growthFactor;
-
-        [SerializeField]
         private float _growthConsumptionFactor;
-
-        [SerializeField]
         private float _yieldFactor;
-
-        [SerializeField]
         private float _yieldConsumptionFactor;
-
-        [SerializeField]
         private int _growthFertilizationRadius;
-
-        [SerializeField]
         private int _capacity;
-
-        [SerializeField]
         private string _supply;
 
         private static readonly ComponentKey GrowthFertilizationBuildingKey = new ComponentKey(nameof(GrowthFertilizationBuilding));
@@ -156,9 +143,21 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
         }
         public void Awake()
         {
+            // read from specification
+            var spec = this.GetComponent<GrowthFertilizationBuildingSpec>();
+            _growthFactor = spec.GrowthFactor;
+            _growthConsumptionFactor = spec.GrowthConsumptionFactor;
+            _yieldFactor = spec.YieldFactor;
+            _yieldConsumptionFactor = spec.YieldConsumptionFactor;
+            _growthFertilizationRadius = spec.GrowthFertilizationRadius;
+            _capacity = spec.Capacity;
+            _supply = spec.Supply;
+
+            // get required static components
             this._blockableObject = this.GetComponent<BlockableObject>();
             this._blockObjectRange = this.GetComponent<BlockObjectRange>();
             this._labeledEntitySpec = this.GetComponent<LabeledEntitySpec>();
+
             // set up time triggering response
             this._timeTrigger = this._timeTriggerFactory.Create(new Action(this.FertilizeNearbyGrowingTrees), _timeTriggerCallCountPerDay);
 
