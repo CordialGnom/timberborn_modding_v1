@@ -20,7 +20,6 @@ namespace Cordial.Mods.BoosterJuice.Scripts
             containerDefinition.Bind<GrowthFertilizationAreaService>().AsSingleton();
             containerDefinition.Bind<GrowthFertilizationBuilding>().AsTransient();
             containerDefinition.Bind<GrowthFertilizationWorkplaceBehaviour>().AsTransient();
-            containerDefinition.Bind<GrowthFertilizationHaulBehaviourProvider>().AsTransient();
             containerDefinition.Bind<GrowthFertilizationStatusService>().AsTransient();
 
             // UI fragments
@@ -70,19 +69,20 @@ namespace Cordial.Mods.BoosterJuice.Scripts
                 var inventoryService = new GrowthFertilizationInventoryService(_inventoryInitializerFactory);
                 var builder = new TemplateModule.Builder();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationBuilding>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, Workshop>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, AutoEmptiableBlocker>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, AutoEmptiable>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, Emptiable>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, HaulCandidate>();
-                builder.AddDecorator<GrowthFertilizationBuildingSpec, FillInputHaulBehaviorProvider>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationStatusService>();
-                builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationHaulBehaviourProvider>();
-                builder.AddDecorator<GrowthFertilizationBuildingSpec, WorkshopProductivityCounter>();
+                //builder.AddDecorator<GrowthFertilizationBuildingSpec, WorkshopProductivityCounter>();
                 builder.AddDecorator<Worker, WorkplaceWorkStarter>();
                 builder.AddDecorator<GrowthFertilizationStatusService, LackOfResourcesStatus>();
                 builder.AddDecorator<GrowthFertilizationStatusService, NoHaulingPostStatus>();
                 builder.AddDedicatedDecorator<GrowthFertilizationBuildingSpec, Inventory>(inventoryService);
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, GrowthFertilizationWorkplaceBehaviour>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, FillInputWorkplaceBehavior>();
+                builder.AddDecorator<GrowthFertilizationBuildingSpec, EmptyOutputWorkplaceBehavior>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, LaborWorkplaceBehavior>();
                 builder.AddDecorator<GrowthFertilizationBuildingSpec, WaitInsideIdlyWorkplaceBehavior>();
                 return builder.Build();

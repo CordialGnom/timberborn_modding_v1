@@ -33,26 +33,44 @@ namespace Cordial.Mods.BoosterJuice.Scripts
             this._inventories = this.GetComponent<Inventories>();
             this._fillInputWorkplaceBehavior = this.GetComponent<FillInputWorkplaceBehavior>();
             this._emptyOutputWorkplaceBehavior = this.GetComponent<EmptyOutputWorkplaceBehavior>();
+            Debug.Log("HaulBehaviour Awake - fill null=" + (_fillInputWorkplaceBehavior == null)
+                + ", empty null=" + (_emptyOutputWorkplaceBehavior == null));
+
+            var providers = new List<IHaulBehaviorProvider>();
+            this.GetComponents<IHaulBehaviorProvider>(providers);
+            Debug.Log("Providers on entity: " + providers.Count);
+            foreach (var p in providers)
+                Debug.Log("Provider: " + p.GetType().Name);
         }
 
         public void GetWeightedBehaviors(IList<WeightedBehavior> weightedBehaviors)
         {
+            Debug.Log("GetWeightedBehaviors called, unblocked=" + _blockableObject.IsUnblocked);
+            
             if (!this._growthFertilizationBuilding || !this._blockableObject.IsUnblocked)
                 return;
 
             foreach (Inventory enabledInventory in this._inventories.EnabledInventories)
             {
-                if (enabledInventory.IsInput)
+                if (enabledInventory.IsInput && _fillInputWorkplaceBehavior != null)
                 {
                     float weight = 1f - this._inventoryFillCalculator.GetInputFillPercentage(enabledInventory);
-                    if ((double)weight > 0.0)
-                        weightedBehaviors.Add(new WeightedBehavior(weight, (WorkplaceBehavior)this._fillInputWorkplaceBehavior));
+                    if (weight > 0f)
+                    {
+                        Debug.Log("Adding input behavior, null=" + (_fillInputWorkplaceBehavior == null));
+                        weightedBehaviors.Add(new WeightedBehavior(weight,
+                            (WorkplaceBehavior)this._fillInputWorkplaceBehavior));
+                    }
                 }
-                if (enabledInventory.IsOutput)
+                if (enabledInventory.IsOutput && _emptyOutputWorkplaceBehavior != null)
                 {
-                    float outputFillPercentage = this._inventoryFillCalculator.GetOutputFillPercentage(enabledInventory);
-                    if ((double)outputFillPercentage > 0.0)
-                        weightedBehaviors.Add(new WeightedBehavior(outputFillPercentage, (WorkplaceBehavior)this._emptyOutputWorkplaceBehavior));
+                    float fill = this._inventoryFillCalculator.GetOutputFillPercentage(enabledInventory);
+                    if (fill > 0f)
+                    {
+                        Debug.Log("Adding output behavior, null=" + (_emptyOutputWorkplaceBehavior == null));
+                        weightedBehaviors.Add(new WeightedBehavior(fill,
+                            (WorkplaceBehavior)this._emptyOutputWorkplaceBehavior));
+                    }
                 }
             }
         }

@@ -44,7 +44,6 @@
     "LimitedCapacityUnfinished": false,
     "CapacityUnfinished": 0
   },
-  "WorkshopSpec": {},
   "TemplateSpec": {
     "TemplateName": "CordialFertilizerDump.FolkTails",
     "BackwardCompatibleTemplateNames": [],

@@ -169,7 +169,6 @@ namespace Cordial.Mods.BoosterJuice.Scripts {
             this._workplaceWorkingHours = this.GetComponent<WorkplaceWorkingHours>();
             this._workshop = this.GetComponent<Workshop>();
 
-
             this._eventBus.Register((object)this);
         }
         public void InitializeInventory(Inventory inventory)
